@@ -1,0 +1,23 @@
+{
+  "items": [
+    { "id": 1, "category": "entrees", "name": "Salade Africaine", "price": "4 500 FCFA", "description": "Légumes frais, avocat, œuf dur, vinaigrette maison" },
+    { "id": 2, "category": "entrees", "name": "Beignets de Poisson", "price": "3 500 FCFA", "description": "Filet de poisson pané, sauce épicée" },
+    { "id": 3, "category": "entrees", "name": "Samoussas (6 pcs)", "price": "3 000 FCFA", "description": "Viande hachée, légumes, herbes" },
+    { "id": 4, "category": "entrees", "name": "Avocat Crevettes", "price": "5 000 FCFA", "description": "Avocat garni de crevettes, sauce cocktail" },
+    { "id": 5, "category": "plats", "name": "Poulet Braisé", "price": "6 000 FCFA", "description": "Poulet grillé, attiéké, légumes" },
+    { "id": 6, "category": "plats", "name": "Poisson Grillé (Bar)", "price": "7 500 FCFA", "description": "Poisson frais grillé, alloco, sauce" },
+    { "id": 7, "category": "plats", "name": "Pizza Face À La Mer", "price": "6 500 FCFA", "description": "Crevettes, poulet, champignons, fromage" },
+    { "id": 8, "category": "plats", "name": "Riz Poisson", "price": "5 500 FCFA", "description": "Riz parfumé, poisson frais, légumes" },
+    { "id": 9, "category": "plats", "name": "Spaghetti Fruits de Mer", "price": "6 000 FCFA", "description": "Crevettes, calamars, moules, sauce tomate" },
+    { "id": 10, "category": "plats", "name": "Brochette de Bœuf", "price": "5 000 FCFA", "description": "Brochettes grillées, frites, sauce" },
+    { "id": 11, "category": "specialites", "name": "Assiette de Fruits de Mer", "price": "12 000 FCFA", "description": "Plateau de fruits de mer frais (pour 2 personnes)" },
+    { "id": 12, "category": "specialites", "name": "Gambas Grillées", "price": "9 000 FCFA", "description": "Gambas flambées au whisky, riz" },
+    { "id": 13, "category": "specialites", "name": "Mix Grill", "price": "8 000 FCFA", "description": "Assortiment de viandes grillées, frites" },
+    { "id": 14, "category": "boissons", "name": "Jus de Fruits Frais", "price": "2 000 FCFA", "description": "Bissap, gingembre, tamarin, ananas" },
+    { "id": 15, "category": "boissons", "name": "Cocktail Maison", "price": "4 000 FCFA", "description": "Mojito, Piña Colada, Sunrise" },
+    { "id": 16, "category": "boissons", "name": "Boissons Gazeuses", "price": "1 000 FCFA", "description": "Coca-Cola, Fanta, Sprite, Oasis" },
+    { "id": 17, "category": "boissons", "name": "Bierre Locale & Importée", "price": "1 500 – 3 000 FCFA", "description": "La Béninoise, Heineken, Flag" },
+    { "id": 18, "category": "boissons", "name": "Vin au Verre", "price": "3 000 FCFA", "description": "Rouge, Blanc, Rosé" },
+    { "id": 19, "category": "boissons", "name": "Eau Minérale", "price": "500 FCFA", "description": "50cl / 1.5L" }
+  ]
+}

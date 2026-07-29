@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://facealamerbenin.com/sitemap.xml
