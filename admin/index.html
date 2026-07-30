@@ -90,7 +90,7 @@
       <label>Nom du repo</label>
       <input type="text" id="repoName" value="face-a-la-mer">
     </div>
-    <button class="btn btn-primary" onclick="login()" style="width:100%">Connexion</button>
+    <button class="btn btn-primary" onclick="login();return false" style="width:100%">Connexion</button>
     <div class="error" id="loginError">Mot de passe ou token incorrect</div>
   </div>
 </div>
@@ -153,22 +153,14 @@
 
 <script>
 // ===== CONFIG =====
-const PASSWORD_HASH = '8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92'; // sha256('admin123')
-
-async function sha256(str) {
-  const buf = new TextEncoder().encode(str);
-  const hash = await crypto.subtle.digest('SHA-256', buf);
-  return Array.from(new Uint8Array(hash)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
+const ADMIN_PASSWORD = 'admin123';
 const GH_API = 'https://api.github.com';
 let ghToken = '', repoOwner = '', repoName = '';
 
 // ===== AUTH =====
-async function login() {
+function login() {
   const pwd = document.getElementById('password').value;
-  const hash = await sha256(pwd);
-  if (hash !== PASSWORD_HASH) {
+  if (pwd !== ADMIN_PASSWORD) {
     document.getElementById('loginError').style.display = 'block';
     return;
   }
