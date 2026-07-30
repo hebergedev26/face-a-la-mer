@@ -1,3 +1,27 @@
+const FB_CONFIG = {
+  apiKey: "AIzaSyXXXXXXXXXX",
+  authDomain: "votre-projet.firebaseapp.com",
+  projectId: "votre-projet",
+  storageBucket: "votre-projet.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:xxxxxxxxxxxxxx"
+};
+
+let fbApp, fbDb;
+
+try {
+  fbApp = firebase.initializeApp(FB_CONFIG, "site");
+  fbDb = firebase.firestore(fbApp);
+} catch {}
+
+async function fromFirestore(collection) {
+  if (!fbDb) return null;
+  try {
+    const snap = await fbDb.collection(collection).orderBy('id').get();
+    return snap.docs.map(d => d.data());
+  } catch { return null; }
+}
+
 async function fetchJSON(url) {
   try {
     const res = await fetch(url);
@@ -12,18 +36,28 @@ let settingsCache = null;
 
 async function getSettings() {
   if (settingsCache) return settingsCache;
+  if (fbDb) {
+    try {
+      const doc = await fbDb.collection('settings').doc('restaurant').get();
+      if (doc.exists) { settingsCache = doc.data(); return settingsCache; }
+    } catch {}
+  }
   settingsCache = await fetchJSON('data/settings.json');
   return settingsCache;
 }
 
 async function loadMenu() {
-  const data = await fetchJSON('data/menu.json');
-  if (!data) return;
+  let data = await fromFirestore('menu');
+  if (!data) {
+    const json = await fetchJSON('data/menu.json');
+    data = json?.items || [];
+  }
+  if (!data.length) return;
   document.querySelectorAll('.menu-section').forEach(section => {
     const id = section.id;
     const container = section.querySelector('.menu-grid');
     if (!container) return;
-    const items = data.items.filter(i => i.category === id);
+    const items = data.filter(i => i.category === id);
     if (items.length) {
       container.innerHTML = items.map(item => `
         <div class="menu-item">
@@ -40,8 +74,11 @@ async function loadMenu() {
 }
 
 async function loadReviews() {
-  const data = await fetchJSON('data/reviews.json');
-  if (!data) return;
+  let data = await fromFirestore('reviews');
+  if (!data) {
+    data = await fetchJSON('data/reviews.json') || [];
+  }
+  if (!data.length) return;
   const container = document.querySelector('.reviews-grid');
   if (!container) return;
   const ratingEl = document.querySelector('.big-rating');
@@ -60,8 +97,11 @@ async function loadReviews() {
 }
 
 async function loadGallery() {
-  const data = await fetchJSON('data/gallery.json');
-  if (!data) return;
+  let data = await fromFirestore('gallery');
+  if (!data) {
+    data = await fetchJSON('data/gallery.json') || [];
+  }
+  if (!data.length) return;
   const container = document.querySelector('.gallery-grid');
   if (!container) return;
   container.innerHTML = data.map(item => `

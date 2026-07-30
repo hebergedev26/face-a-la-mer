@@ -7,18 +7,25 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.13.0/firebase-firestore-compat.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Inter', sans-serif; background: #f5f3f0; color: #2c2c2c; min-height: 100vh; }
+    body { font-family: 'Inter', -apple-system, sans-serif; background: #f5f3f0; color: #2c2c2c; min-height: 100vh; }
+    input, select, textarea, button { font-family: inherit; }
     .login-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 20px; }
     .login-box { background: #fff; padding: 40px; border-radius: 16px; box-shadow: 0 4px 24px rgba(0,0,0,0.1); width: 100%; max-width: 420px; }
     .login-box h1 { font-size: 1.5rem; color: #1a3a5c; margin-bottom: 4px; }
     .login-box p { color: #6b6b6b; font-size: 0.9rem; margin-bottom: 24px; }
-    .form-group { margin-bottom: 16px; }
-    .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #1a3a5c; margin-bottom: 6px; }
-    .form-group input, .form-group select { width: 100%; padding: 12px 14px; border: 2px solid #e5e0da; border-radius: 8px; font-family: inherit; font-size: 0.9rem; background: #faf8f5; outline: none; transition: 0.2s; }
-    .form-group input:focus { border-color: #d4a853; box-shadow: 0 0 0 3px rgba(212,168,83,0.15); }
-    .btn { padding: 12px 28px; border: none; border-radius: 50px; font-family: inherit; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: 0.2s; }
+    .login-box .form-group { margin-bottom: 16px; }
+    .login-box .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #1a3a5c; margin-bottom: 6px; }
+    .login-box .form-group input { width: 100%; padding: 12px 14px; border: 2px solid #e5e0da; border-radius: 8px; font-size: 0.9rem; background: #faf8f5; outline: none; transition: 0.2s; }
+    .login-box .form-group input:focus { border-color: #d4a853; box-shadow: 0 0 0 3px rgba(212,168,83,0.15); }
+    .btn { padding: 12px 28px; border: none; border-radius: 50px; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 8px; }
     .btn-primary { background: #d4a853; color: #1a3a5c; }
     .btn-primary:hover { background: #c4956a; }
     .btn-danger { background: #dc3545; color: #fff; }
@@ -26,21 +33,20 @@
     .btn-outline { background: transparent; border: 2px solid #d4a853; color: #d4a853; }
     .btn-outline:hover { background: #d4a853; color: #1a3a5c; }
     .btn-sm { padding: 8px 16px; font-size: 0.85rem; }
+    .btn:disabled { opacity: 0.6; cursor: not-allowed; }
     .error { color: #dc3545; font-size: 0.85rem; margin-top: 8px; display: none; }
-    .success { color: #28a745; font-size: 0.85rem; margin-top: 8px; display: none; }
-    .dashboard { display: none; }
-    .dashboard.visible { display: block; }
     .topbar { background: #1a3a5c; color: #fff; padding: 16px 24px; display: flex; align-items: center; justify-content: space-between; }
     .topbar h2 { font-size: 1.1rem; }
     .topbar .user { font-size: 0.85rem; opacity: 0.8; }
     .tabs { display: flex; gap: 4px; background: #fff; padding: 0 24px; border-bottom: 2px solid #e5e0da; overflow-x: auto; }
-    .tab { padding: 14px 20px; font-size: 0.9rem; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: 0.2s; white-space: nowrap; color: #6b6b6b; background: none; border-top: none; border-left: none; border-right: none; font-family: inherit; }
+    .tab { padding: 14px 20px; font-size: 0.9rem; font-weight: 500; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; transition: 0.2s; white-space: nowrap; color: #6b6b6b; background: none; border-top: none; border-left: none; border-right: none; }
     .tab:hover { color: #1a3a5c; }
     .tab.active { color: #d4a853; border-bottom-color: #d4a853; }
     .tab-content { display: none; padding: 24px; max-width: 1000px; margin: 0 auto; }
     .tab-content.active { display: block; }
     .card { background: #fff; border-radius: 12px; box-shadow: 0 2px 12px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 20px; }
     .card h3 { font-size: 1.05rem; color: #1a3a5c; margin-bottom: 16px; }
+    .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; flex-wrap: wrap; gap: 8px; }
     .item-row { display: flex; gap: 12px; align-items: center; padding: 12px 0; border-bottom: 1px solid #f0eee8; flex-wrap: wrap; }
     .item-row:last-child { border-bottom: none; }
     .item-row .info { flex: 1; min-width: 200px; }
@@ -52,476 +58,548 @@
     .modal-overlay.visible { display: flex; }
     .modal { background: #fff; border-radius: 16px; padding: 32px; width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto; }
     .modal h3 { font-size: 1.15rem; color: #1a3a5c; margin-bottom: 20px; }
-    .modal .form-group textarea { width: 100%; padding: 12px 14px; border: 2px solid #e5e0da; border-radius: 8px; font-family: inherit; font-size: 0.9rem; background: #faf8f5; outline: none; resize: vertical; min-height: 80px; transition: 0.2s; }
-    .modal .form-group textarea:focus { border-color: #d4a853; }
+    .modal .form-group { margin-bottom: 16px; }
+    .modal .form-group label { display: block; font-size: 0.85rem; font-weight: 600; color: #1a3a5c; margin-bottom: 6px; }
+    .modal .form-group input, .modal .form-group select, .modal .form-group textarea { width: 100%; padding: 12px 14px; border: 2px solid #e5e0da; border-radius: 8px; font-size: 0.9rem; background: #faf8f5; outline: none; transition: 0.2s; }
+    .modal .form-group input:focus, .modal .form-group select:focus, .modal .form-group textarea:focus { border-color: #d4a853; box-shadow: 0 0 0 3px rgba(212,168,83,0.15); }
+    .modal .form-group textarea { resize: vertical; min-height: 80px; }
+    .modal .form-group.checkbox { display: flex; align-items: center; gap: 8px; }
+    .modal .form-group.checkbox label { margin-bottom: 0; cursor: pointer; }
+    .modal .form-group.checkbox input { width: auto; }
     .modal-actions { display: flex; gap: 12px; margin-top: 20px; justify-content: flex-end; }
-    .toast { position: fixed; bottom: 24px; right: 24px; padding: 14px 24px; border-radius: 10px; color: #fff; font-weight: 500; font-size: 0.9rem; z-index: 200; opacity: 0; transform: translateY(20px); transition: 0.3s; pointer-events: none; }
-    .toast.show { opacity: 1; transform: translateY(0); }
+    .toast-container { position: fixed; bottom: 24px; right: 24px; z-index: 200; display: flex; flex-direction: column; gap: 8px; }
+    .toast { padding: 14px 24px; border-radius: 10px; color: #fff; font-weight: 500; font-size: 0.9rem; animation: slideIn 0.3s ease; }
     .toast.success { background: #28a745; }
     .toast.error { background: #dc3545; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+    .spinner { width: 20px; height: 20px; border: 2px solid rgba(0,0,0,0.1); border-top-color: #1a3a5c; border-radius: 50%; animation: spin 0.6s linear infinite; display: inline-block; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; }
+    .badge-entrees { background: #e8f5e9; color: #2e7d32; }
+    .badge-plats { background: #e3f2fd; color: #1565c0; }
+    .badge-specialites { background: #fff3e0; color: #e65100; }
+    .badge-boissons { background: #f3e5f5; color: #7b1fa2; }
+    .category-label { font-size: 0.9rem; font-weight: 600; color: #1a3a5c; padding-bottom: 6px; border-bottom: 2px solid #d4a853; display: inline-block; margin-bottom: 8px; }
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .settings-grid .form-group { margin-bottom: 0; }
     @media (max-width: 600px) {
       .login-box { padding: 24px; }
       .tabs { padding: 0 12px; }
       .tab { padding: 12px 14px; font-size: 0.85rem; }
       .tab-content { padding: 16px; }
       .modal { padding: 20px; }
+      .settings-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const FIREBASE_CONFIG = {
+      apiKey: "AIzaSyXXXXXXXXXX",
+      authDomain: "votre-projet.firebaseapp.com",
+      projectId: "votre-projet",
+      storageBucket: "votre-projet.appspot.com",
+      messagingSenderId: "000000000000",
+      appId: "1:000000000000:web:xxxxxxxxxxxxxx"
+    };
 
-<div class="login-screen" id="loginScreen">
-  <div class="login-box">
-    <h1>🔐 Administration</h1>
-    <p>Face À La Mer — Gérez votre contenu</p>
-    <div class="form-group">
-      <label>Mot de passe</label>
-      <input type="password" id="password" placeholder="Entrez le mot de passe">
-    </div>
-    <div class="form-group">
-      <label>Token GitHub (classic, scope: repo)</label>
-      <input type="password" id="ghToken" placeholder="ghp_...">
-    </div>
-    <div class="form-group">
-      <label>Propriétaire du repo</label>
-      <input type="text" id="repoOwner" value="hebergedev26">
-    </div>
-    <div class="form-group">
-      <label>Nom du repo</label>
-      <input type="text" id="repoName" value="face-a-la-mer">
-    </div>
-    <button class="btn btn-primary" onclick="login();return false" style="width:100%">Connexion</button>
-    <div class="error" id="loginError">Mot de passe ou token incorrect</div>
-  </div>
-</div>
+    const CATEGORIES = { entrees: 'Entrées', plats: 'Plats principaux', specialites: 'Spécialités', boissons: 'Boissons' };
 
-<div class="dashboard" id="dashboard">
-  <div class="topbar">
-    <h2>⚙️ Face À La Mer — Admin</h2>
-    <div><span class="user" id="statusText">Connecté</span> <button class="btn btn-sm btn-outline" style="color:#fff;border-color:rgba(255,255,255,0.3);margin-left:12px" onclick="logout()">Déconnexion</button></div>
-  </div>
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-tab="menu">🍽️ Menu</button>
-    <button class="tab" data-tab="reviews">⭐ Avis</button>
-    <button class="tab" data-tab="gallery">📷 Galerie</button>
-    <button class="tab" data-tab="settings">⚙️ Paramètres</button>
-  </div>
+    const { useState, useEffect, useCallback } = React;
 
-  <div class="tab-content active" id="tab-menu">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h3>🍽️ Menu</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('menu')">+ Ajouter un plat</button>
-      </div>
-      <div id="menuList"></div>
-    </div>
-  </div>
-
-  <div class="tab-content" id="tab-reviews">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h3>⭐ Avis clients</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('review')">+ Ajouter un avis</button>
-      </div>
-      <div id="reviewsList"></div>
-    </div>
-  </div>
-
-  <div class="tab-content" id="tab-gallery">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;flex-wrap:wrap;gap:8px">
-        <h3>📷 Galerie</h3>
-        <button class="btn btn-primary btn-sm" onclick="openModal('gallery')">+ Ajouter une photo</button>
-      </div>
-      <div id="galleryList"></div>
-    </div>
-  </div>
-
-  <div class="tab-content" id="tab-settings">
-    <div class="card">
-      <h3>⚙️ Paramètres du restaurant</h3>
-      <div id="settingsForm"></div>
-    </div>
-  </div>
-</div>
-
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modalContent"></div>
-</div>
-
-<div class="toast" id="toast"></div>
-
-<script>
-// ===== CONFIG =====
-const ADMIN_PASSWORD_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
-const GH_API = 'https://api.github.com';
-let ghToken = '', repoOwner = '', repoName = '';
-
-async function sha256(str) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
-}
-
-// ===== AUTH =====
-async function login() {
-  const pwd = document.getElementById('password').value;
-  const errEl = document.getElementById('loginError');
-  const hash = await sha256(pwd.trim());
-  if (hash !== ADMIN_PASSWORD_HASH) {
-    errEl.textContent = 'Mot de passe incorrect';
-    errEl.style.display = 'block';
-    return;
-  }
-  ghToken = document.getElementById('ghToken').value;
-  repoOwner = document.getElementById('repoOwner').value.trim();
-  repoName = document.getElementById('repoName').value.trim();
-  if (!ghToken || !repoOwner || !repoName) {
-    errEl.textContent = 'Tous les champs sont requis';
-    errEl.style.display = 'block';
-    return;
-  }
-  sessionStorage.setItem('fam-admin-token', ghToken);
-  localStorage.setItem('fam-admin-repo', JSON.stringify({ owner: repoOwner, name: repoName }));
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('dashboard').classList.add('visible');
-  document.getElementById('statusText').textContent = `${repoOwner}/${repoName}`;
-  initTabs();
-  loadAll();
-}
-
-function logout() {
-  sessionStorage.removeItem('fam-admin-token');
-  localStorage.removeItem('fam-admin-repo');
-  location.reload();
-}
-
-// Restore session (token stocké en sessionStorage uniquement, effacé à la fermeture de l'onglet)
-(function() {
-  const savedToken = sessionStorage.getItem('fam-admin-token');
-  const savedRepo = localStorage.getItem('fam-admin-repo');
-  if (savedRepo) {
-    const r = JSON.parse(savedRepo);
-    document.getElementById('repoOwner').value = r.owner;
-    document.getElementById('repoName').value = r.name;
-  }
-  if (savedToken) {
-    document.getElementById('ghToken').value = savedToken;
-  }
-})();
-
-// ===== TABS =====
-function initTabs() {
-  document.querySelectorAll('.tab').forEach(tab => {
-    tab.addEventListener('click', () => {
-      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-      document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
-      tab.classList.add('active');
-      document.getElementById('tab-' + tab.dataset.tab).classList.add('active');
-    });
-  });
-}
-
-// ===== GITHUB API =====
-async function ghFetch(path, options = {}) {
-  const res = await fetch(`${GH_API}${path}`, {
-    ...options,
-    headers: {
-      'Authorization': `Bearer ${ghToken}`,
-      'Accept': 'application/vnd.github.v3+json',
-      ...options.headers,
+    // ====== Firebase Init ======
+    let app, auth, db;
+    try {
+      app = firebase.initializeApp(FIREBASE_CONFIG);
+      auth = firebase.auth(app);
+      db = firebase.firestore(app);
+    } catch (e) {
+      console.warn('Firebase non configuré:', e.message);
     }
-  });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`GitHub API error ${res.status}: ${err}`);
-  }
-  return res.json();
-}
 
-async function getFile(path) {
-  try {
-    const data = await ghFetch(`/repos/${repoOwner}/${repoName}/contents/${path}`);
-    return { content: JSON.parse(fromBase64(data.content)), sha: data.sha };
-  } catch { return { content: null, sha: null }; }
-}
+    // ====== Toast System ======
+    const ToastContext = React.createContext();
+    function ToastProvider({ children }) {
+      const [toasts, setToasts] = useState([]);
+      const addToast = useCallback((msg, type = 'success') => {
+        const id = Date.now();
+        setToasts(prev => [...prev, { id, msg, type }]);
+        setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 3000);
+      }, []);
+      return React.createElement(React.Fragment, null,
+        children,
+        React.createElement('div', { className: 'toast-container' },
+          toasts.map(t => React.createElement('div', { key: t.id, className: `toast ${t.type}` }, t.msg))
+        )
+      );
+    }
 
-function toBase64(str) {
-  const bytes = new TextEncoder().encode(str);
-  let binary = '';
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
-  return btoa(binary);
-}
+    // ====== Login Page ======
+    function LoginPage({ onLogin }) {
+      const [email, setEmail] = useState('');
+      const [password, setPassword] = useState('');
+      const [error, setError] = useState('');
+      const [loading, setLoading] = useState(false);
 
-function fromBase64(str) {
-  const binary = atob(str);
-  const bytes = new Uint8Array(binary.length);
-  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
-  return new TextDecoder().decode(bytes);
-}
+      const handleLogin = async (e) => {
+        e.preventDefault();
+        setError('');
+        setLoading(true);
+        try {
+          await auth.signInWithEmailAndPassword(email, password);
+          onLogin();
+        } catch (err) {
+          setError(err.message === 'The password is invalid or the user does not have a password.'
+            ? 'Email ou mot de passe incorrect'
+            : err.message === 'There is no user record corresponding to this identifier.'
+            ? 'Aucun compte trouvé avec cet email'
+            : err.message);
+        } finally {
+          setLoading(false);
+        }
+      };
 
-async function saveFile(path, content, sha, message) {
-  const body = { message, content: toBase64(JSON.stringify(content, null, 2)), branch: 'master' };
-  if (sha) body.sha = sha;
-  await ghFetch(`/repos/${repoOwner}/${repoName}/contents/${path}`, { method: 'PUT', body: JSON.stringify(body) });
-}
+      return React.createElement('div', { className: 'login-screen' },
+        React.createElement('div', { className: 'login-box' },
+          React.createElement('h1', null, '🔐 Administration'),
+          React.createElement('p', null, 'Face À La Mer — Gérez votre contenu'),
+          React.createElement('form', { onSubmit: handleLogin },
+            React.createElement('div', { className: 'form-group' },
+              React.createElement('label', null, 'Email'),
+              React.createElement('input', { type: 'email', value: email, onChange: e => setEmail(e.target.value), placeholder: 'admin@example.com', required: true })
+            ),
+            React.createElement('div', { className: 'form-group' },
+              React.createElement('label', null, 'Mot de passe'),
+              React.createElement('input', { type: 'password', value: password, onChange: e => setPassword(e.target.value), placeholder: '••••••••', required: true })
+            ),
+            error && React.createElement('div', { style: { color: '#dc3545', fontSize: '0.85rem', marginBottom: '16px' } }, error),
+            React.createElement('button', { type: 'submit', className: 'btn btn-primary', style: { width: '100%', justifyContent: 'center' }, disabled: loading },
+              loading ? React.createElement(React.Fragment, null, React.createElement('span', { className: 'spinner' }), ' Connexion...') : 'Se connecter'
+            )
+          )
+        )
+      );
+    }
 
-// ===== DATA LOADING =====
-let menuData = [], reviewsData = [], galleryData = [], settingsData = {};
+    // ====== Dashboard ======
+    function Dashboard({ onLogout }) {
+      const [tab, setTab] = useState('menu');
 
-async function loadAll() {
-  const [menu, reviews, gallery, settings] = await Promise.all([
-    getFile('data/menu.json'),
-    getFile('data/reviews.json'),
-    getFile('data/gallery.json'),
-    getFile('data/settings.json'),
-  ]);
-  menuData = menu.content?.items || [];
-  reviewsData = reviews.content || [];
-  galleryData = gallery.content || [];
-  settingsData = settings.content || {};
-  renderMenu(); renderReviews(); renderGallery(); renderSettings();
-  window._menuSha = menu.sha;
-  window._reviewsSha = reviews.sha;
-  window._gallerySha = gallery.sha;
-  window._settingsSha = settings.sha;
-}
+      const tabs = [
+        { id: 'menu', label: '🍽️ Menu' },
+        { id: 'reviews', label: '⭐ Avis' },
+        { id: 'gallery', label: '📷 Galerie' },
+        { id: 'settings', label: '⚙️ Paramètres' },
+      ];
 
-// ===== RENDER MENU =====
-const CATEGORIES = { entrees: 'Entrées', plats: 'Plats principaux', specialites: 'Spécialités', boissons: 'Boissons' };
+      return React.createElement('div', null,
+        React.createElement('div', { className: 'topbar' },
+          React.createElement('h2', null, '⚙️ Face À La Mer — Admin'),
+          React.createElement('div', null,
+            React.createElement('span', { className: 'user' }, auth.currentUser?.email || 'Connecté'),
+            React.createElement('button', { className: 'btn btn-sm btn-outline', style: { color: '#fff', borderColor: 'rgba(255,255,255,0.3)', marginLeft: '12px' }, onClick: () => { auth.signOut(); onLogout(); } }, 'Déconnexion')
+          )
+        ),
+        React.createElement('div', { className: 'tabs' },
+          tabs.map(t => React.createElement('button', {
+            key: t.id,
+            className: `tab ${tab === t.id ? 'active' : ''}`,
+            onClick: () => setTab(t.id)
+          }, t.label))
+        ),
+        React.createElement('div', { className: `tab-content ${tab === 'menu' ? 'active' : ''}` },
+          tab === 'menu' && React.createElement(MenuManager, null)
+        ),
+        React.createElement('div', { className: `tab-content ${tab === 'reviews' ? 'active' : ''}` },
+          tab === 'reviews' && React.createElement(ReviewsManager, null)
+        ),
+        React.createElement('div', { className: `tab-content ${tab === 'gallery' ? 'active' : ''}` },
+          tab === 'gallery' && React.createElement(GalleryManager, null)
+        ),
+        React.createElement('div', { className: `tab-content ${tab === 'settings' ? 'active' : ''}` },
+          tab === 'settings' && React.createElement(SettingsManager, null)
+        )
+      );
+    }
 
-function renderMenu() {
-  const el = document.getElementById('menuList');
-  if (!menuData.length) { el.innerHTML = '<div class="empty-state">Aucun plat pour l\'instant</div>'; return; }
-  el.innerHTML = Object.entries(CATEGORIES).map(([key, label]) => `
-    <div style="margin-bottom:16px">
-      <h4 style="color:#1a3a5c;margin-bottom:8px;padding-bottom:6px;border-bottom:2px solid #d4a853;display:inline-block">${label}</h4>
-      ${menuData.filter(i => i.category === key).map(item => `
-        <div class="item-row">
-          <div class="info"><strong>${item.name}</strong><span>${item.price} — ${item.description}</span></div>
-          <div class="actions">
-            <button class="btn btn-sm btn-primary" onclick="openModal('menu', ${item.id})">Modifier</button>
-            <button class="btn btn-sm btn-danger" onclick="deleteItem('menu', ${item.id})">Suppr.</button>
-          </div>
-        </div>
-      `).join('')}
-    </div>
-  `).join('');
-}
+    // ====== Modal ======
+    function Modal({ title, children, onClose }) {
+      return React.createElement('div', { className: 'modal-overlay visible', onClick: e => { if (e.target === e.currentTarget) onClose(); } },
+        React.createElement('div', { className: 'modal' },
+          React.createElement('h3', null, title),
+          children
+        )
+      );
+    }
 
-// ===== RENDER REVIEWS =====
-function renderReviews() {
-  const el = document.getElementById('reviewsList');
-  if (!reviewsData.length) { el.innerHTML = '<div class="empty-state">Aucun avis pour l\'instant</div>'; return; }
-  el.innerHTML = reviewsData.map(r => `
-    <div class="item-row">
-      <div class="info"><strong>${r.author}</strong><span>${'★'.repeat(r.stars)}${'☆'.repeat(5-r.stars)} — ${r.text.substring(0,80)}${r.text.length>80?'...':''}</span></div>
-      <div class="actions">
-        <button class="btn btn-sm btn-primary" onclick="openModal('review', ${r.id})">Modifier</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItem('review', ${r.id})">Suppr.</button>
-      </div>
-    </div>
-  `).join('');
-}
+    // ====== Menu Manager ======
+    function MenuManager() {
+      const [items, setItems] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [modal, setModal] = useState(null);
+      const addToast = React.useContext(ToastContext);
 
-// ===== RENDER GALLERY =====
-function renderGallery() {
-  const el = document.getElementById('galleryList');
-  if (!galleryData.length) { el.innerHTML = '<div class="empty-state">Aucune photo pour l\'instant</div>'; return; }
-  el.innerHTML = galleryData.map(g => `
-    <div class="item-row">
-      <div class="info"><strong>${g.label}</strong><span>${g.alt}</span></div>
-      <div class="actions">
-        <button class="btn btn-sm btn-primary" onclick="openModal('gallery', ${g.id})">Modifier</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteItem('gallery', ${g.id})">Suppr.</button>
-      </div>
-    </div>
-  `).join('');
-}
+      const load = useCallback(async () => {
+        try {
+          const snap = await db.collection('menu').orderBy('id').get();
+          setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        } catch (e) { addToast('Erreur chargement menu: ' + e.message, 'error'); }
+        finally { setLoading(false); }
+      }, []);
 
-// ===== RENDER SETTINGS =====
-function renderSettings() {
-  const el = document.getElementById('settingsForm');
-  const fields = [
-    { key: 'phone', label: 'Téléphone (affichage)' },
-    { key: 'phoneRaw', label: 'Téléphone (format brut, ex: +2290146075817)' },
-    { key: 'email', label: 'Email' },
-    { key: 'address', label: 'Adresse' },
-    { key: 'hoursWeek', label: 'Jours d\'ouverture' },
-    { key: 'hoursTime', label: 'Horaires' },
-    { key: 'rating', label: 'Note (ex: 4.1)' },
-    { key: 'reviewCount', label: 'Nombre d\'avis (ex: 313+)' },
-    { key: 'whatsappMsg', label: 'Message WhatsApp par défaut' },
-  ];
-  el.innerHTML = fields.map(f => `
-    <div class="form-group">
-      <label>${f.label}</label>
-      <input type="text" id="set-${f.key}" value="${(settingsData[f.key] || '').replace(/"/g,'&quot;')}">
-    </div>
-  `).join('') + `
-    <button class="btn btn-primary" onclick="saveSettings()">💾 Enregistrer les paramètres</button>
-  `;
-}
+      useEffect(() => { load(); }, []);
 
-// ===== MODAL =====
-let modalMode = '', modalId = null;
+      const save = async (data) => {
+        try {
+          if (data.id) {
+            await db.collection('menu').doc(data.id).update(data);
+            addToast('Plat modifié ✓');
+          } else {
+            const count = items.length;
+            await db.collection('menu').add({ ...data, id: Date.now() });
+            addToast('Plat ajouté ✓');
+          }
+          setModal(null);
+          load();
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+      };
 
-function openModal(type, id) {
-  modalMode = type; modalId = id || null;
-  const overlay = document.getElementById('modalOverlay');
-  const content = document.getElementById('modalContent');
-  overlay.classList.add('visible');
-  if (type === 'menu') openMenuModal(id);
-  else if (type === 'review') openReviewModal(id);
-  else if (type === 'gallery') openGalleryModal(id);
-}
+      const remove = async (docId) => {
+        if (!confirm('Supprimer ce plat ?')) return;
+        try {
+          await db.collection('menu').doc(docId).delete();
+          addToast('Plat supprimé ✓');
+          load();
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+      };
 
-function closeModal() { document.getElementById('modalOverlay').classList.remove('visible'); }
+      if (loading) return React.createElement('div', { className: 'card' }, React.createElement('div', { className: 'empty-state' }, 'Chargement...'));
 
-function openMenuModal(id) {
-  const item = id ? menuData.find(i => i.id === id) : { category: 'entrees', name: '', price: '', description: '' };
-  document.getElementById('modalContent').innerHTML = `
-    <h3>${id ? 'Modifier' : 'Ajouter'} un plat</h3>
-    <div class="form-group"><label>Catégorie</label><select id="m-cat">
-      ${Object.entries(CATEGORIES).map(([k,v]) => `<option value="${k}"${item.category===k?' selected':''}>${v}</option>`).join('')}
-    </select></div>
-    <div class="form-group"><label>Nom</label><input type="text" id="m-name" value="${item.name}"></div>
-    <div class="form-group"><label>Prix</label><input type="text" id="m-price" value="${item.price}"></div>
-    <div class="form-group"><label>Description</label><textarea id="m-desc">${item.description}</textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-primary" onclick="saveMenuItem()">${id ? 'Modifier' : 'Ajouter'}</button>
-    </div>
-  `;
-}
+      return React.createElement(React.Fragment, null,
+        React.createElement('div', { className: 'card' },
+          React.createElement('div', { className: 'card-header' },
+            React.createElement('h3', null, '🍽️ Menu'),
+            React.createElement('button', { className: 'btn btn-primary btn-sm', onClick: () => setModal({}) }, '+ Ajouter un plat')
+          ),
+          items.length === 0
+            ? React.createElement('div', { className: 'empty-state' }, 'Aucun plat pour l\'instant')
+            : Object.entries(CATEGORIES).map(([key, label]) => {
+                const filtered = items.filter(i => i.category === key);
+                if (!filtered.length) return null;
+                return React.createElement('div', { key, style: { marginBottom: '16px' } },
+                  React.createElement('div', { className: 'category-label' }, label),
+                  filtered.map(item => React.createElement('div', { key: item.id, className: 'item-row' },
+                    React.createElement('div', { className: 'info' },
+                      React.createElement('strong', null, item.name),
+                      React.createElement('span', null, `${item.price} — ${item.description}`)
+                    ),
+                    React.createElement('div', { className: 'actions' },
+                      React.createElement('button', { className: 'btn btn-sm btn-primary', onClick: () => setModal(item) }, 'Modifier'),
+                      React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(item.id) }, 'Suppr.')
+                    )
+                  ))
+                );
+              })
+        ),
+        modal && React.createElement(ItemModal, {
+          title: `${modal.id ? 'Modifier' : 'Ajouter'} un plat`,
+          fields: [
+            { key: 'category', label: 'Catégorie', type: 'select', options: CATEGORIES, value: modal.category || 'entrees' },
+            { key: 'name', label: 'Nom', value: modal.name || '' },
+            { key: 'price', label: 'Prix', value: modal.price || '' },
+            { key: 'description', label: 'Description', type: 'textarea', value: modal.description || '' },
+          ],
+          onSave: (data) => save({ ...modal, ...data }),
+          onClose: () => setModal(null)
+        })
+      );
+    }
 
-function openReviewModal(id) {
-  const r = id ? reviewsData.find(i => i.id === id) : { stars: 5, text: '', author: '' };
-  document.getElementById('modalContent').innerHTML = `
-    <h3>${id ? 'Modifier' : 'Ajouter'} un avis</h3>
-    <div class="form-group"><label>Étoiles (1-5)</label><select id="r-stars">
-      ${[1,2,3,4,5].map(s => `<option value="${s}"${r.stars===s?' selected':''}>${'★'.repeat(s)}${'☆'.repeat(5-s)}</option>`).join('')}
-    </select></div>
-    <div class="form-group"><label>Auteur</label><input type="text" id="r-author" value="${r.author}"></div>
-    <div class="form-group"><label>Texte</label><textarea id="r-text">${r.text}</textarea></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-primary" onclick="saveReview()">${id ? 'Modifier' : 'Ajouter'}</button>
-    </div>
-  `;
-}
+    // ====== Reviews Manager ======
+    function ReviewsManager() {
+      const [items, setItems] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [modal, setModal] = useState(null);
+      const addToast = React.useContext(ToastContext);
 
-function openGalleryModal(id) {
-  const g = id ? galleryData.find(i => i.id === id) : { src: '', thumb: '', alt: '', label: '', wide: false, tall: false };
-  document.getElementById('modalContent').innerHTML = `
-    <h3>${id ? 'Modifier' : 'Ajouter'} une photo</h3>
-    <div class="form-group"><label>Label</label><input type="text" id="g-label" value="${g.label}"></div>
-    <div class="form-group"><label>Texte alternatif</label><input type="text" id="g-alt" value="${g.alt}"></div>
-    <div class="form-group"><label>URL grande image</label><input type="text" id="g-src" value="${g.src}"></div>
-    <div class="form-group"><label>URL miniature</label><input type="text" id="g-thumb" value="${g.thumb}"></div>
-    <div class="form-group"><label><input type="checkbox" id="g-wide" ${g.wide?'checked':''}> Large (2 colonnes)</label></div>
-    <div class="form-group"><label><input type="checkbox" id="g-tall" ${g.tall?'checked':''}> Haute (2 rangées)</label></div>
-    <div class="modal-actions">
-      <button class="btn btn-outline" onclick="closeModal()">Annuler</button>
-      <button class="btn btn-primary" onclick="saveGalleryItem()">${id ? 'Modifier' : 'Ajouter'}</button>
-    </div>
-  `;
-}
+      const load = useCallback(async () => {
+        try {
+          const snap = await db.collection('reviews').orderBy('id').get();
+          setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+        finally { setLoading(false); }
+      }, []);
 
-// ===== SAVE =====
-async function saveMenuItem() {
-  const cat = document.getElementById('m-cat').value;
-  const name = document.getElementById('m-name').value.trim();
-  const price = document.getElementById('m-price').value.trim();
-  const desc = document.getElementById('m-desc').value.trim();
-  if (!name || !price) return showToast('Nom et prix requis', 'error');
-  if (modalId) {
-    const idx = menuData.findIndex(i => i.id === modalId);
-    if (idx >= 0) menuData[idx] = { ...menuData[idx], category: cat, name, price, description: desc };
-  } else {
-    menuData.push({ id: Date.now(), category: cat, name, price, description: desc });
-  }
-  await saveMenuToGitHub();
-  renderMenu(); closeModal(); showToast('Menu mis à jour ✓', 'success');
-}
+      useEffect(() => { load(); }, []);
 
-async function saveReview() {
-  const stars = parseInt(document.getElementById('r-stars').value);
-  const author = document.getElementById('r-author').value.trim();
-  const text = document.getElementById('r-text').value.trim();
-  if (!author || !text) return showToast('Auteur et texte requis', 'error');
-  if (modalId) {
-    const idx = reviewsData.findIndex(i => i.id === modalId);
-    if (idx >= 0) reviewsData[idx] = { ...reviewsData[idx], stars, author, text };
-  } else {
-    reviewsData.push({ id: Date.now(), stars, author, text });
-  }
-  await saveReviewsToGitHub();
-  renderReviews(); closeModal(); showToast('Avis mis à jour ✓', 'success');
-}
+      const save = async (data) => {
+        try {
+          if (data.id) {
+            await db.collection('reviews').doc(data.id).update(data);
+            addToast('Avis modifié ✓');
+          } else {
+            await db.collection('reviews').add({ ...data, id: Date.now() });
+            addToast('Avis ajouté ✓');
+          }
+          setModal(null);
+          load();
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+      };
 
-async function saveGalleryItem() {
-  const label = document.getElementById('g-label').value.trim();
-  const alt = document.getElementById('g-alt').value.trim();
-  const src = document.getElementById('g-src').value.trim();
-  const thumb = document.getElementById('g-thumb').value.trim();
-  const wide = document.getElementById('g-wide').checked;
-  const tall = document.getElementById('g-tall').checked;
-  if (!label || !src) return showToast('Label et URL requis', 'error');
-  const item = { label, alt, src, thumb: thumb || src, wide, tall };
-  if (modalId) {
-    const idx = galleryData.findIndex(i => i.id === modalId);
-    if (idx >= 0) galleryData[idx] = { id: modalId, ...item };
-  } else {
-    galleryData.push({ id: Date.now(), ...item });
-  }
-  await saveGalleryToGitHub();
-  renderGallery(); closeModal(); showToast('Galerie mise à jour ✓', 'success');
-}
+      const remove = async (docId) => {
+        if (!confirm('Supprimer cet avis ?')) return;
+        await db.collection('reviews').doc(docId).delete();
+        addToast('Avis supprimé ✓');
+        load();
+      };
 
-async function saveSettings() {
-  const keys = ['phone','phoneRaw','email','address','hoursWeek','hoursTime','rating','reviewCount','whatsappMsg'];
-  keys.forEach(k => { settingsData[k] = document.getElementById(`set-${k}`).value; });
-  await saveSettingsToGitHub();
-  renderSettings(); showToast('Paramètres enregistrés ✓', 'success');
-}
+      if (loading) return React.createElement('div', { className: 'card' }, React.createElement('div', { className: 'empty-state' }, 'Chargement...'));
 
-// ===== DELETE =====
-async function deleteItem(type, id) {
-  if (!confirm('Supprimer cet élément ?')) return;
-  if (type === 'menu') { menuData = menuData.filter(i => i.id !== id); await saveMenuToGitHub(); renderMenu(); }
-  if (type === 'review') { reviewsData = reviewsData.filter(i => i.id !== id); await saveReviewsToGitHub(); renderReviews(); }
-  if (type === 'gallery') { galleryData = galleryData.filter(i => i.id !== id); await saveGalleryToGitHub(); renderGallery(); }
-  showToast('Élément supprimé ✓', 'success');
-}
+      return React.createElement(React.Fragment, null,
+        React.createElement('div', { className: 'card' },
+          React.createElement('div', { className: 'card-header' },
+            React.createElement('h3', null, '⭐ Avis clients'),
+            React.createElement('button', { className: 'btn btn-primary btn-sm', onClick: () => setModal({}) }, '+ Ajouter un avis')
+          ),
+          items.length === 0
+            ? React.createElement('div', { className: 'empty-state' }, 'Aucun avis pour l\'instant')
+            : items.map(r => React.createElement('div', { key: r.id, className: 'item-row' },
+                React.createElement('div', { className: 'info' },
+                  React.createElement('strong', null, r.author),
+                  React.createElement('span', null, `${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)} — ${r.text.substring(0, 80)}${r.text.length > 80 ? '...' : ''}`)
+                ),
+                React.createElement('div', { className: 'actions' },
+                  React.createElement('button', { className: 'btn btn-sm btn-primary', onClick: () => setModal(r) }, 'Modifier'),
+                  React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(r.id) }, 'Suppr.')
+                )
+              ))
+        ),
+        modal && React.createElement(ItemModal, {
+          title: `${modal.id ? 'Modifier' : 'Ajouter'} un avis`,
+          fields: [
+            { key: 'stars', label: 'Étoiles', type: 'select', options: { 5: '★★★★★', 4: '★★★★☆', 3: '★★★☆☆', 2: '★★☆☆☆', 1: '★☆☆☆☆' }, value: modal.stars || 5 },
+            { key: 'author', label: 'Auteur', value: modal.author || '' },
+            { key: 'text', label: 'Texte', type: 'textarea', value: modal.text || '' },
+          ],
+          onSave: (data) => save({ ...modal, ...data }),
+          onClose: () => setModal(null)
+        })
+      );
+    }
 
-// ===== GITHUB SAVE HELPERS =====
-async function saveMenuToGitHub() {
-  await saveFile('data/menu.json', { items: menuData }, window._menuSha, 'Mise à jour du menu');
-}
+    // ====== Gallery Manager ======
+    function GalleryManager() {
+      const [items, setItems] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [modal, setModal] = useState(null);
+      const addToast = React.useContext(ToastContext);
 
-async function saveReviewsToGitHub() {
-  await saveFile('data/reviews.json', reviewsData, window._reviewsSha, 'Mise à jour des avis');
-}
+      const load = useCallback(async () => {
+        try {
+          const snap = await db.collection('gallery').orderBy('id').get();
+          setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+        finally { setLoading(false); }
+      }, []);
 
-async function saveGalleryToGitHub() {
-  await saveFile('data/gallery.json', galleryData, window._gallerySha, 'Mise à jour de la galerie');
-}
+      useEffect(() => { load(); }, []);
 
-async function saveSettingsToGitHub() {
-  await saveFile('data/settings.json', settingsData, window._settingsSha, 'Mise à jour des paramètres');
-}
+      const save = async (data) => {
+        try {
+          if (data.id) {
+            await db.collection('gallery').doc(data.id).update(data);
+            addToast('Photo modifiée ✓');
+          } else {
+            await db.collection('gallery').add({ ...data, id: Date.now() });
+            addToast('Photo ajoutée ✓');
+          }
+          setModal(null);
+          load();
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+      };
 
-// ===== TOAST =====
-function showToast(msg, type) {
-  const el = document.getElementById('toast');
-  el.textContent = msg; el.className = 'toast ' + type + ' show';
-  setTimeout(() => el.classList.remove('show'), 3000);
-}
+      const remove = async (docId) => {
+        if (!confirm('Supprimer cette photo ?')) return;
+        await db.collection('gallery').doc(docId).delete();
+        addToast('Photo supprimée ✓');
+        load();
+      };
 
-// Close modal on overlay click
-document.getElementById('modalOverlay').addEventListener('click', (e) => {
-  if (e.target === e.currentTarget) closeModal();
-});
-</script>
+      if (loading) return React.createElement('div', { className: 'card' }, React.createElement('div', { className: 'empty-state' }, 'Chargement...'));
+
+      return React.createElement(React.Fragment, null,
+        React.createElement('div', { className: 'card' },
+          React.createElement('div', { className: 'card-header' },
+            React.createElement('h3', null, '📷 Galerie'),
+            React.createElement('button', { className: 'btn btn-primary btn-sm', onClick: () => setModal({}) }, '+ Ajouter une photo')
+          ),
+          items.length === 0
+            ? React.createElement('div', { className: 'empty-state' }, 'Aucune photo pour l\'instant')
+            : items.map(g => React.createElement('div', { key: g.id, className: 'item-row' },
+                React.createElement('div', { className: 'info' },
+                  React.createElement('strong', null, g.label),
+                  React.createElement('span', null, g.alt)
+                ),
+                React.createElement('div', { className: 'actions' },
+                  React.createElement('button', { className: 'btn btn-sm btn-primary', onClick: () => setModal(g) }, 'Modifier'),
+                  React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(g.id) }, 'Suppr.')
+                )
+              ))
+        ),
+        modal && React.createElement(ItemModal, {
+          title: `${modal.id ? 'Modifier' : 'Ajouter'} une photo`,
+          fields: [
+            { key: 'label', label: 'Label', value: modal.label || '' },
+            { key: 'alt', label: 'Texte alternatif', value: modal.alt || '' },
+            { key: 'src', label: 'URL grande image', value: modal.src || '' },
+            { key: 'thumb', label: 'URL miniature', value: modal.thumb || modal.src || '' },
+            { key: 'wide', label: 'Large (2 colonnes)', type: 'checkbox', value: modal.wide || false },
+            { key: 'tall', label: 'Haute (2 rangées)', type: 'checkbox', value: modal.tall || false },
+          ],
+          onSave: (data) => save({ ...modal, ...data }),
+          onClose: () => setModal(null)
+        })
+      );
+    }
+
+    // ====== Settings Manager ======
+    function SettingsManager() {
+      const [settings, setSettings] = useState({});
+      const [loading, setLoading] = useState(true);
+      const [saving, setSaving] = useState(false);
+      const addToast = React.useContext(ToastContext);
+
+      const fields = [
+        { key: 'phone', label: 'Téléphone (affichage)' },
+        { key: 'phoneRaw', label: 'Téléphone (format brut, ex: +2290146075817)' },
+        { key: 'email', label: 'Email' },
+        { key: 'address', label: 'Adresse' },
+        { key: 'hoursWeek', label: "Jours d'ouverture" },
+        { key: 'hoursTime', label: 'Horaires' },
+        { key: 'rating', label: 'Note (ex: 4.1)' },
+        { key: 'reviewCount', label: "Nombre d'avis (ex: 313+)" },
+        { key: 'whatsappMsg', label: 'Message WhatsApp par défaut' },
+      ];
+
+      const load = useCallback(async () => {
+        try {
+          const doc = await db.collection('settings').doc('restaurant').get();
+          if (doc.exists) setSettings(doc.data());
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+        finally { setLoading(false); }
+      }, []);
+
+      useEffect(() => { load(); }, []);
+
+      const save = async () => {
+        setSaving(true);
+        try {
+          await db.collection('settings').doc('restaurant').set(settings);
+          addToast('Paramètres enregistrés ✓');
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+        finally { setSaving(false); }
+      };
+
+      if (loading) return React.createElement('div', { className: 'card' }, React.createElement('div', { className: 'empty-state' }, 'Chargement...'));
+
+      return React.createElement('div', { className: 'card' },
+        React.createElement('h3', null, '⚙️ Paramètres du restaurant'),
+        React.createElement('div', { className: 'settings-grid' },
+          fields.map(f => React.createElement('div', { key: f.key, className: 'form-group' },
+            React.createElement('label', null, f.label),
+            React.createElement('input', { type: 'text', value: settings[f.key] || '', onChange: e => setSettings(s => ({ ...s, [f.key]: e.target.value })) })
+          ))
+        ),
+        React.createElement('button', { className: 'btn btn-primary', style: { marginTop: '20px' }, onClick: save, disabled: saving },
+          saving ? 'Enregistrement...' : '💾 Enregistrer les paramètres'
+        )
+      );
+    }
+
+    // ====== Reusable Item Modal ======
+    function ItemModal({ title, fields, onSave, onClose }) {
+      const [data, setData] = useState(() => {
+        const obj = {};
+        fields.forEach(f => { obj[f.key] = f.value !== undefined ? f.value : ''; });
+        return obj;
+      });
+
+      const handleChange = (key, val) => setData(d => ({ ...d, [key]: val }));
+
+      return React.createElement(Modal, { title, onClose },
+        fields.map(f => {
+          if (f.type === 'select') {
+            return React.createElement('div', { key: f.key, className: 'form-group' },
+              React.createElement('label', null, f.label),
+              React.createElement('select', { value: data[f.key], onChange: e => handleChange(f.key, parseInt(e.target.value) || e.target.value) },
+                Object.entries(f.options).map(([k, v]) => React.createElement('option', { key: k, value: k }, v))
+              )
+            );
+          }
+          if (f.type === 'textarea') {
+            return React.createElement('div', { key: f.key, className: 'form-group' },
+              React.createElement('label', null, f.label),
+              React.createElement('textarea', { value: data[f.key], onChange: e => handleChange(f.key, e.target.value) })
+            );
+          }
+          if (f.type === 'checkbox') {
+            return React.createElement('div', { key: f.key, className: 'form-group checkbox' },
+              React.createElement('input', { type: 'checkbox', id: f.key, checked: data[f.key], onChange: e => handleChange(f.key, e.target.checked) }),
+              React.createElement('label', { htmlFor: f.key }, f.label)
+            );
+          }
+          return React.createElement('div', { key: f.key, className: 'form-group' },
+            React.createElement('label', null, f.label),
+            React.createElement('input', { type: 'text', value: data[f.key], onChange: e => handleChange(f.key, e.target.value) })
+          );
+        }),
+        React.createElement('div', { className: 'modal-actions' },
+          React.createElement('button', { className: 'btn btn-outline', onClick: onClose }, 'Annuler'),
+          React.createElement('button', { className: 'btn btn-primary', onClick: () => onSave(data) }, title.startsWith('Ajouter') ? 'Ajouter' : 'Modifier')
+        )
+      );
+    }
+
+    // ====== App ======
+    function App() {
+      const [user, setUser] = useState(null);
+      const [checking, setChecking] = useState(true);
+
+      useEffect(() => {
+        if (!auth) { setChecking(false); return; }
+        const unsub = auth.onAuthStateChanged(u => {
+          setUser(u);
+          setChecking(false);
+        });
+        return unsub;
+      }, []);
+
+      if (!app) {
+        return React.createElement('div', { className: 'login-screen' },
+          React.createElement('div', { className: 'login-box', style: { textAlign: 'center' } },
+            React.createElement('h1', null, '🔐 Configuration requise'),
+            React.createElement('p', null, 'Firebase n\'est pas configuré. Modifiez FIREBASE_CONFIG dans admin/index.html.'),
+            React.createElement('a', { href: 'https://console.firebase.google.com', target: '_blank', className: 'btn btn-primary' }, 'Créer un projet Firebase')
+          )
+        );
+      }
+
+      if (checking) {
+        return React.createElement('div', { className: 'login-screen' },
+          React.createElement('div', { className: 'spinner', style: { width: 40, height: 40 } })
+        );
+      }
+
+      return user ? React.createElement(Dashboard, { onLogout: () => setUser(null) }) : React.createElement(LoginPage, { onLogin: () => {} });
+    }
+
+    // ====== Render ======
+    ReactDOM.createRoot(document.getElementById('root')).render(
+      React.createElement(ToastProvider, null,
+        React.createElement(App, null)
+      )
+    );
+  </script>
 </body>
 </html>
