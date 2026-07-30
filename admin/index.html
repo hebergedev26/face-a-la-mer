@@ -154,22 +154,25 @@
 <script>
 // ===== CONFIG =====
 const ADMIN_PASSWORD = 'admin123';
+const ADMIN_PASSWORD_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
 const GH_API = 'https://api.github.com';
 let ghToken = '', repoOwner = '', repoName = '';
 
 // ===== AUTH =====
 function login() {
   const pwd = document.getElementById('password').value;
-  if (pwd !== ADMIN_PASSWORD) {
-    document.getElementById('loginError').style.display = 'block';
+  const errEl = document.getElementById('loginError');
+  if (pwd.trim() !== ADMIN_PASSWORD) {
+    errEl.textContent = 'Mot de passe incorrect';
+    errEl.style.display = 'block';
     return;
   }
   ghToken = document.getElementById('ghToken').value;
   repoOwner = document.getElementById('repoOwner').value.trim();
   repoName = document.getElementById('repoName').value.trim();
   if (!ghToken || !repoOwner || !repoName) {
-    document.getElementById('loginError').textContent = 'Tous les champs sont requis';
-    document.getElementById('loginError').style.display = 'block';
+    errEl.textContent = 'Tous les champs sont requis';
+    errEl.style.display = 'block';
     return;
   }
   localStorage.setItem('fam-admin-token', ghToken);
@@ -231,12 +234,26 @@ async function ghFetch(path, options = {}) {
 async function getFile(path) {
   try {
     const data = await ghFetch(`/repos/${repoOwner}/${repoName}/contents/${path}`);
-    return { content: JSON.parse(atob(data.content)), sha: data.sha };
+    return { content: JSON.parse(fromBase64(data.content)), sha: data.sha };
   } catch { return { content: null, sha: null }; }
 }
 
+function toBase64(str) {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+  return btoa(binary);
+}
+
+function fromBase64(str) {
+  const binary = atob(str);
+  const bytes = new Uint8Array(binary.length);
+  for (let i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+
 async function saveFile(path, content, sha, message) {
-  const body = { message, content: btoa(JSON.stringify(content, null, 2)), branch: 'main' };
+  const body = { message, content: toBase64(JSON.stringify(content, null, 2)), branch: 'master' };
   if (sha) body.sha = sha;
   await ghFetch(`/repos/${repoOwner}/${repoName}/contents/${path}`, { method: 'PUT', body: JSON.stringify(body) });
 }
