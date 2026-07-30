@@ -1,10 +1,10 @@
 const FB_CONFIG = {
-  apiKey: "AIzaSyXXXXXXXXXX",
-  authDomain: "votre-projet.firebaseapp.com",
-  projectId: "votre-projet",
-  storageBucket: "votre-projet.appspot.com",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:xxxxxxxxxxxxxx"
+  apiKey: "AIzaSyAHR4yTj2QmcamgAPviiPbSp5QybWJqa-E",
+  authDomain: "face-a-la-mer-b4ef3.firebaseapp.com",
+  projectId: "face-a-la-mer-b4ef3",
+  storageBucket: "face-a-la-mer-b4ef3.firebasestorage.app",
+  messagingSenderId: "24607256556",
+  appId: "1:24607256556:web:73baba28fe1a1c528b9ac9"
 };
 
 let fbApp, fbDb;
