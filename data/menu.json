@@ -16,7 +16,7 @@
     { "id": 14, "category": "boissons", "name": "Jus de Fruits Frais", "price": "2 000 FCFA", "description": "Bissap, gingembre, tamarin, ananas" },
     { "id": 15, "category": "boissons", "name": "Cocktail Maison", "price": "4 000 FCFA", "description": "Mojito, Piña Colada, Sunrise" },
     { "id": 16, "category": "boissons", "name": "Boissons Gazeuses", "price": "1 000 FCFA", "description": "Coca-Cola, Fanta, Sprite, Oasis" },
-    { "id": 17, "category": "boissons", "name": "Bierre Locale & Importée", "price": "1 500 – 3 000 FCFA", "description": "La Béninoise, Heineken, Flag" },
+    { "id": 17, "category": "boissons", "name": "Bière Locale &amp; Importée", "price": "1 500 – 3 000 FCFA", "description": "La Béninoise, Heineken, Flag" },
     { "id": 18, "category": "boissons", "name": "Vin au Verre", "price": "3 000 FCFA", "description": "Rouge, Blanc, Rosé" },
     { "id": 19, "category": "boissons", "name": "Eau Minérale", "price": "500 FCFA", "description": "50cl / 1.5L" }
   ]

@@ -5,6 +5,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (!form) return;
 
+  // Set _next dynamically from current URL
+  const formNext = document.getElementById('formNext');
+  if (formNext) {
+    formNext.value = window.location.origin + '/reservation.html?success=true';
+  }
+
   // Check for success URL parameter
   const urlParams = new URLSearchParams(window.location.search);
   if (urlParams.get('success') === 'true') {
@@ -67,13 +73,4 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // WhatsApp prefill
-  const whatsappLinks = document.querySelectorAll('[data-whatsapp]');
-  whatsappLinks.forEach(link => {
-    link.addEventListener('click', (e) => {
-      const msg = encodeURIComponent(getText('whatsapp_msg'));
-      const phone = link.dataset.whatsapp || '2290146075817';
-      link.href = `https://wa.me/${phone}?text=${msg}`;
-    });
-  });
 });

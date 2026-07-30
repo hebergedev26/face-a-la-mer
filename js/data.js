@@ -8,6 +8,14 @@ async function fetchJSON(url) {
   }
 }
 
+let settingsCache = null;
+
+async function getSettings() {
+  if (settingsCache) return settingsCache;
+  settingsCache = await fetchJSON('data/settings.json');
+  return settingsCache;
+}
+
 async function loadMenu() {
   const data = await fetchJSON('data/menu.json');
   if (!data) return;
@@ -37,9 +45,8 @@ async function loadReviews() {
   const container = document.querySelector('.reviews-grid');
   if (!container) return;
   const ratingEl = document.querySelector('.big-rating');
-  const countEl = document.querySelector('.review-count');
   if (ratingEl) {
-    const s = await fetchJSON('data/settings.json');
+    const s = await getSettings();
     if (s) ratingEl.textContent = s.rating.toString().replace('.', ',');
   }
   container.innerHTML = data.map((r, i) => `
@@ -66,7 +73,7 @@ async function loadGallery() {
 }
 
 async function loadSettings() {
-  const data = await fetchJSON('data/settings.json');
+  const data = await getSettings();
   if (!data) return;
   document.querySelectorAll('[data-setting]').forEach(el => {
     const key = el.dataset.setting;

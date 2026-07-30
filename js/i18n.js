@@ -1,6 +1,11 @@
 const i18n = {
   fr: {
     site_title: 'Face À La Mer',
+    title_menu: 'Notre Carte — Face À La Mer',
+    title_galerie: 'Galerie — Face À La Mer',
+    title_avis: 'Avis Clients — Face À La Mer',
+    title_contact: 'Contact — Face À La Mer',
+    title_reservation: 'Réservation — Face À La Mer',
     nav_accueil: 'Accueil',
     nav_menu: 'Notre Carte',
     nav_galerie: 'Galerie',
@@ -14,7 +19,7 @@ const i18n = {
     hero_desc: 'Cadre en plein air, cuisine variée et ambiance conviviale en bord de mer.',
     hero_btn_menu: 'Découvrir la carte',
     hero_btn_reserve: 'Réserver maintenant',
-    hero_badge: 'Excellent — {stars} 4,1/5 sur 313+ avis',
+    hero_badge: 'Excellent — ★ 4,1/5 sur 313+ avis',
     hero_badge_fr: 'Excellent',
 
     footer_about: 'Restaurant & Bar en bord de mer à Fidjrossé, Cotonou. Cuisine africaine, pizzas, fruits de mer et cocktails dans un cadre chaleureux.',
@@ -79,6 +84,11 @@ const i18n = {
   },
   en: {
     site_title: 'Face À La Mer',
+    title_menu: 'Our Menu — Face À La Mer',
+    title_galerie: 'Gallery — Face À La Mer',
+    title_avis: 'Customer Reviews — Face À La Mer',
+    title_contact: 'Contact — Face À La Mer',
+    title_reservation: 'Reservation — Face À La Mer',
     nav_accueil: 'Home',
     nav_menu: 'Our Menu',
     nav_galerie: 'Gallery',
@@ -92,7 +102,7 @@ const i18n = {
     hero_desc: 'Open-air setting, varied cuisine, and friendly atmosphere by the sea.',
     hero_btn_menu: 'View our menu',
     hero_btn_reserve: 'Book now',
-    hero_badge: 'Excellent — {stars} 4.1/5 on 313+ reviews',
+    hero_badge: 'Excellent — ★ 4.1/5 on 313+ reviews',
     hero_badge_fr: 'Excellent',
 
     footer_about: 'Seaside Restaurant & Bar in Fidjrossé, Cotonou. African cuisine, pizzas, seafood, and cocktails in a warm setting.',

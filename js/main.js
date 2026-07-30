@@ -67,13 +67,16 @@ document.addEventListener('DOMContentLoaded', () => {
     lightboxImg.alt = galleryImages[currentImageIndex].alt || '';
   }
 
-  document.querySelectorAll('.gallery-item').forEach((item, index) => {
-    const img = item.querySelector('img');
-    const src = item.dataset.src || img?.src;
-    if (src) {
-      galleryImages.push({ src, alt: img?.alt || '' });
-      item.addEventListener('click', () => openLightbox(galleryImages.length - 1));
-    }
+  document.addEventListener('click', (e) => {
+    const item = e.target.closest('.gallery-item');
+    if (!item) return;
+    galleryImages = [];
+    document.querySelectorAll('.gallery-item').forEach(el => {
+      const img = el.querySelector('img');
+      galleryImages.push({ src: el.dataset.src || img?.src, alt: img?.alt || '' });
+    });
+    const index = Array.from(document.querySelectorAll('.gallery-item')).indexOf(item);
+    if (index >= 0) openLightbox(index);
   });
 
   if (lightboxClose) lightboxClose.addEventListener('click', closeLightbox);

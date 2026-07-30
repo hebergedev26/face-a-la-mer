@@ -153,16 +153,21 @@
 
 <script>
 // ===== CONFIG =====
-const ADMIN_PASSWORD = 'admin123';
 const ADMIN_PASSWORD_HASH = '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
 const GH_API = 'https://api.github.com';
 let ghToken = '', repoOwner = '', repoName = '';
 
+async function sha256(str) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
 // ===== AUTH =====
-function login() {
+async function login() {
   const pwd = document.getElementById('password').value;
   const errEl = document.getElementById('loginError');
-  if (pwd.trim() !== ADMIN_PASSWORD) {
+  const hash = await sha256(pwd.trim());
+  if (hash !== ADMIN_PASSWORD_HASH) {
     errEl.textContent = 'Mot de passe incorrect';
     errEl.style.display = 'block';
     return;
@@ -175,7 +180,7 @@ function login() {
     errEl.style.display = 'block';
     return;
   }
-  localStorage.setItem('fam-admin-token', ghToken);
+  sessionStorage.setItem('fam-admin-token', ghToken);
   localStorage.setItem('fam-admin-repo', JSON.stringify({ owner: repoOwner, name: repoName }));
   document.getElementById('loginScreen').style.display = 'none';
   document.getElementById('dashboard').classList.add('visible');
@@ -185,20 +190,22 @@ function login() {
 }
 
 function logout() {
-  localStorage.removeItem('fam-admin-token');
+  sessionStorage.removeItem('fam-admin-token');
   localStorage.removeItem('fam-admin-repo');
   location.reload();
 }
 
-// Restore session
+// Restore session (token stocké en sessionStorage uniquement, effacé à la fermeture de l'onglet)
 (function() {
-  const savedToken = localStorage.getItem('fam-admin-token');
+  const savedToken = sessionStorage.getItem('fam-admin-token');
   const savedRepo = localStorage.getItem('fam-admin-repo');
-  if (savedToken && savedRepo) {
+  if (savedRepo) {
     const r = JSON.parse(savedRepo);
-    document.getElementById('ghToken').value = savedToken;
     document.getElementById('repoOwner').value = r.owner;
     document.getElementById('repoName').value = r.name;
+  }
+  if (savedToken) {
+    document.getElementById('ghToken').value = savedToken;
   }
 })();
 
