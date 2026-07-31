@@ -84,6 +84,25 @@
     .settings-grid .form-group { margin-bottom: 0; }
     .settings-grid textarea { width: 100%; padding: 12px 14px; border: 2px solid #e5e0da; border-radius: 8px; font-size: 0.9rem; background: #faf8f5; outline: none; transition: 0.2s; resize: vertical; min-height: 80px; }
     .settings-grid textarea:focus { border-color: #d4a853; box-shadow: 0 0 0 3px rgba(212,168,83,0.15); }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 16px; }
+    .form-grid .full { grid-column: 1 / -1; }
+    .modal .form-group .hint { display: block; font-size: 0.75rem; color: #9a9a9a; margin-top: 4px; }
+    .input-icon { position: relative; }
+    .input-icon input { padding-left: 42px !important; }
+    .input-icon .icon { position: absolute; left: 14px; top: 50%; transform: translateY(-50%); color: #b0a99c; font-size: 1.1rem; pointer-events: none; }
+    .password-wrap { position: relative; }
+    .password-wrap input { padding-right: 46px !important; }
+    .password-toggle { position: absolute; right: 6px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1rem; color: #b0a99c; padding: 6px 8px; border-radius: 6px; }
+    .password-toggle:hover { color: #1a3a5c; }
+    .alert-error { background: #fdecea; border: 1px solid #f5c6cb; color: #b02a37; padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 16px; }
+    .login-logo { width: 56px; height: 56px; border-radius: 14px; background: #1a3a5c; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; margin-bottom: 16px; box-shadow: 0 4px 12px rgba(26,58,92,0.2); }
+    .login-box h1 { display: flex; align-items: center; gap: 10px; }
+    .modal .form-group.checkbox { display: flex; align-items: center; gap: 8px; margin-bottom: 16px; }
+    .modal .form-group.checkbox label { margin-bottom: 0; cursor: pointer; font-weight: 500; }
+    .modal .form-group.checkbox input { width: 18px; height: 18px; accent-color: #d4a853; }
+    .checkbox-inline { display: flex; align-items: center; gap: 8px; cursor: pointer; font-weight: 500; margin-bottom: 0 !important; }
+    .checkbox-inline input { width: 18px; height: 18px; accent-color: #d4a853; }
+    .item-count { font-size: 0.8rem; color: #9a9a9a; font-weight: 500; }
     @media (max-width: 600px) {
       .login-box { padding: 24px; }
       .tabs { padding: 0 12px; }
@@ -91,6 +110,7 @@
       .tab-content { padding: 16px; }
       .modal { padding: 20px; }
       .settings-grid { grid-template-columns: 1fr; }
+      .form-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -141,6 +161,7 @@
     function LoginPage({ onLogin }) {
       const [email, setEmail] = useState('');
       const [password, setPassword] = useState('');
+      const [showPwd, setShowPwd] = useState(false);
       const [error, setError] = useState('');
       const [loading, setLoading] = useState(false);
 
@@ -164,18 +185,25 @@
 
       return React.createElement('div', { className: 'login-screen' },
         React.createElement('div', { className: 'login-box' },
-          React.createElement('h1', null, '🔐 Administration'),
-          React.createElement('p', null, 'Face À La Mer — Gérez votre contenu'),
+          React.createElement('div', { className: 'login-logo' }, '🌊'),
+          React.createElement('h1', null, 'Administration'),
+          React.createElement('p', null, 'Face À La Mer — Espace de gestion'),
           React.createElement('form', { onSubmit: handleLogin },
             React.createElement('div', { className: 'form-group' },
               React.createElement('label', null, 'Email'),
-              React.createElement('input', { type: 'email', value: email, onChange: e => setEmail(e.target.value), placeholder: 'admin@example.com', required: true })
+              React.createElement('div', { className: 'input-icon' },
+                React.createElement('span', { className: 'icon' }, '✉️'),
+                React.createElement('input', { type: 'email', value: email, onChange: e => setEmail(e.target.value), placeholder: 'votre@email.com', required: true })
+              )
             ),
             React.createElement('div', { className: 'form-group' },
               React.createElement('label', null, 'Mot de passe'),
-              React.createElement('input', { type: 'password', value: password, onChange: e => setPassword(e.target.value), placeholder: '••••••••', required: true })
+              React.createElement('div', { className: 'password-wrap' },
+                React.createElement('input', { type: showPwd ? 'text' : 'password', value: password, onChange: e => setPassword(e.target.value), placeholder: '••••••••', required: true }),
+                React.createElement('button', { type: 'button', className: 'password-toggle', onClick: () => setShowPwd(s => !s), title: showPwd ? 'Masquer' : 'Afficher' }, showPwd ? '🙈' : '👁️')
+              )
             ),
-            error && React.createElement('div', { style: { color: '#dc3545', fontSize: '0.85rem', marginBottom: '16px' } }, error),
+            error && React.createElement('div', { className: 'alert-error' }, '⚠️ ' + error),
             React.createElement('button', { type: 'submit', className: 'btn btn-primary', style: { width: '100%', justifyContent: 'center' }, disabled: loading },
               loading ? React.createElement(React.Fragment, null, React.createElement('span', { className: 'spinner' }), ' Connexion...') : 'Se connecter'
             )
@@ -281,7 +309,10 @@
       return React.createElement(React.Fragment, null,
         React.createElement('div', { className: 'card' },
           React.createElement('div', { className: 'card-header' },
-            React.createElement('h3', null, '🍽️ Menu'),
+            React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } },
+              React.createElement('h3', null, '🍽️ Menu'),
+              React.createElement('span', { className: 'item-count' }, items.length + ' plats')
+            ),
             React.createElement('button', { className: 'btn btn-primary btn-sm', onClick: () => setModal({}) }, '+ Ajouter un plat')
           ),
           items.length === 0
@@ -307,10 +338,10 @@
         modal && React.createElement(ItemModal, {
           title: `${modal.id ? 'Modifier' : 'Ajouter'} un plat`,
           fields: [
+            { key: 'name', label: 'Nom du plat', full: true, placeholder: 'Ex : Poulet Braisé', required: true },
             { key: 'category', label: 'Catégorie', type: 'select', options: CATEGORIES, value: modal.category || 'entrees' },
-            { key: 'name', label: 'Nom', value: modal.name || '' },
-            { key: 'price', label: 'Prix', value: modal.price || '' },
-            { key: 'description', label: 'Description', type: 'textarea', value: modal.description || '' },
+            { key: 'price', label: 'Prix', placeholder: 'Ex : 6 000 FCFA', required: true },
+            { key: 'description', label: 'Description', type: 'textarea', full: true, placeholder: 'Décrivez le plat et ses ingrédients...' },
           ],
           onSave: (data) => save({ ...modal, ...data }),
           onClose: () => setModal(null)
@@ -361,7 +392,10 @@
       return React.createElement(React.Fragment, null,
         React.createElement('div', { className: 'card' },
           React.createElement('div', { className: 'card-header' },
-            React.createElement('h3', null, '⭐ Avis clients'),
+            React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } },
+              React.createElement('h3', null, '⭐ Avis clients'),
+              React.createElement('span', { className: 'item-count' }, items.length + ' avis')
+            ),
             React.createElement('button', { className: 'btn btn-primary btn-sm', onClick: () => setModal({}) }, '+ Ajouter un avis')
           ),
           items.length === 0
@@ -380,9 +414,9 @@
         modal && React.createElement(ItemModal, {
           title: `${modal.id ? 'Modifier' : 'Ajouter'} un avis`,
           fields: [
-            { key: 'stars', label: 'Étoiles', type: 'select', options: { 5: '★★★★★', 4: '★★★★☆', 3: '★★★☆☆', 2: '★★☆☆☆', 1: '★☆☆☆☆' }, value: modal.stars || 5 },
-            { key: 'author', label: 'Auteur', value: modal.author || '' },
-            { key: 'text', label: 'Texte', type: 'textarea', value: modal.text || '' },
+            { key: 'author', label: 'Auteur', placeholder: 'Ex : Marie K.', required: true },
+            { key: 'stars', label: 'Note', type: 'select', options: { 5: '★★★★★', 4: '★★★★☆', 3: '★★★☆☆', 2: '★★☆☆☆', 1: '★☆☆☆☆' }, value: modal.stars || 5 },
+            { key: 'text', label: 'Texte de l\'avis', type: 'textarea', full: true, placeholder: 'Rédigez le commentaire du client...', required: true },
           ],
           onSave: (data) => save({ ...modal, ...data }),
           onClose: () => setModal(null)
@@ -409,11 +443,12 @@
 
       const save = async (data) => {
         try {
+          const finalData = { ...data, thumb: data.thumb || data.src };
           if (data.id) {
-            await db.collection('gallery').doc(data.id).update(data);
+            await db.collection('gallery').doc(data.id).update(finalData);
             addToast('Photo modifiée ✓');
           } else {
-            await db.collection('gallery').add({ ...data, id: Date.now() });
+            await db.collection('gallery').add({ ...finalData, id: Date.now() });
             addToast('Photo ajoutée ✓');
           }
           setModal(null);
@@ -433,7 +468,10 @@
       return React.createElement(React.Fragment, null,
         React.createElement('div', { className: 'card' },
           React.createElement('div', { className: 'card-header' },
-            React.createElement('h3', null, '📷 Galerie'),
+            React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } },
+              React.createElement('h3', null, '📷 Galerie'),
+              React.createElement('span', { className: 'item-count' }, items.length + ' photos')
+            ),
             React.createElement('button', { className: 'btn btn-primary btn-sm', onClick: () => setModal({}) }, '+ Ajouter une photo')
           ),
           items.length === 0
@@ -452,10 +490,10 @@
         modal && React.createElement(ItemModal, {
           title: `${modal.id ? 'Modifier' : 'Ajouter'} une photo`,
           fields: [
-            { key: 'label', label: 'Label', value: modal.label || '' },
-            { key: 'alt', label: 'Texte alternatif', value: modal.alt || '' },
-            { key: 'src', label: 'URL grande image', value: modal.src || '' },
-            { key: 'thumb', label: 'URL miniature', value: modal.thumb || modal.src || '' },
+            { key: 'label', label: 'Titre', placeholder: 'Ex : Nos Plats', required: true },
+            { key: 'alt', label: 'Texte alternatif', placeholder: 'Description de l\'image', required: true },
+            { key: 'src', label: 'URL de la grande image', full: true, placeholder: 'https://...', required: true },
+            { key: 'thumb', label: 'URL miniature', full: true, placeholder: 'https://... (laisser vide pour utiliser la grande image)', hint: 'Optionnel — utilisé pour l\'affichage rapide de la galerie' },
             { key: 'wide', label: 'Large (2 colonnes)', type: 'checkbox', value: modal.wide || false },
             { key: 'tall', label: 'Haute (2 rangées)', type: 'checkbox', value: modal.tall || false },
           ],
@@ -533,33 +571,42 @@
 
       const handleChange = (key, val) => setData(d => ({ ...d, [key]: val }));
 
-      return React.createElement(Modal, { title, onClose },
-        fields.map(f => {
-          if (f.type === 'select') {
-            return React.createElement('div', { key: f.key, className: 'form-group' },
-              React.createElement('label', null, f.label),
-              React.createElement('select', { value: data[f.key], onChange: e => handleChange(f.key, parseInt(e.target.value) || e.target.value) },
-                Object.entries(f.options).map(([k, v]) => React.createElement('option', { key: k, value: k }, v))
-              )
-            );
-          }
-          if (f.type === 'textarea') {
-            return React.createElement('div', { key: f.key, className: 'form-group' },
-              React.createElement('label', null, f.label),
-              React.createElement('textarea', { value: data[f.key], onChange: e => handleChange(f.key, e.target.value) })
-            );
-          }
-          if (f.type === 'checkbox') {
-            return React.createElement('div', { key: f.key, className: 'form-group checkbox' },
-              React.createElement('input', { type: 'checkbox', id: f.key, checked: data[f.key], onChange: e => handleChange(f.key, e.target.checked) }),
-              React.createElement('label', { htmlFor: f.key }, f.label)
-            );
-          }
-          return React.createElement('div', { key: f.key, className: 'form-group' },
+      const renderField = (f) => {
+        const cls = `form-group ${f.full ? 'full' : ''}`;
+        if (f.type === 'select') {
+          return React.createElement('div', { key: f.key, className: cls },
             React.createElement('label', null, f.label),
-            React.createElement('input', { type: 'text', value: data[f.key], onChange: e => handleChange(f.key, e.target.value) })
+            React.createElement('select', { value: data[f.key], onChange: e => handleChange(f.key, parseInt(e.target.value) || e.target.value) },
+              Object.entries(f.options).map(([k, v]) => React.createElement('option', { key: k, value: k }, v))
+            )
           );
-        }),
+        }
+        if (f.type === 'textarea') {
+          return React.createElement('div', { key: f.key, className: cls },
+            React.createElement('label', null, f.label),
+            React.createElement('textarea', { value: data[f.key], onChange: e => handleChange(f.key, e.target.value), placeholder: f.placeholder || '', required: f.required || false }),
+            f.hint && React.createElement('span', { className: 'hint' }, f.hint)
+          );
+        }
+        if (f.type === 'checkbox') {
+          return React.createElement('div', { key: f.key, className: cls },
+            React.createElement('label', { htmlFor: f.key, className: 'checkbox-inline' },
+              React.createElement('input', { type: 'checkbox', id: f.key, checked: data[f.key], onChange: e => handleChange(f.key, e.target.checked) }),
+              f.label
+            )
+          );
+        }
+        return React.createElement('div', { key: f.key, className: cls },
+          React.createElement('label', null, f.label),
+          React.createElement('input', { type: f.type || 'text', value: data[f.key], onChange: e => handleChange(f.key, e.target.value), placeholder: f.placeholder || '', required: f.required || false }),
+          f.hint && React.createElement('span', { className: 'hint' }, f.hint)
+        );
+      };
+
+      return React.createElement(Modal, { title, onClose },
+        React.createElement('div', { className: 'form-grid' },
+          fields.map(renderField)
+        ),
         React.createElement('div', { className: 'modal-actions' },
           React.createElement('button', { className: 'btn btn-outline', onClick: onClose }, 'Annuler'),
           React.createElement('button', { className: 'btn btn-primary', onClick: () => onSave(data) }, title.startsWith('Ajouter') ? 'Ajouter' : 'Modifier')
