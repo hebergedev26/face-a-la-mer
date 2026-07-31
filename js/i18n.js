@@ -22,11 +22,21 @@ const i18n = {
     hero_badge: 'Excellent — ★ 4,1/5 sur 313+ avis',
     hero_badge_fr: 'Excellent',
 
+    home_features_subtitle: 'Un cadre unique au bord de la plage de Fidjrossé, où la cuisine locale rencontre les saveurs internationales.',
+    home_feature1_title: 'Cuisine variée',
+    home_feature1_text: 'Africaine, pizzas, fruits de mer, salades et grillades',
+    home_feature2_title: 'Cadre exceptionnel',
+    home_feature2_text: 'Terrasse en bord de mer, ambiance en soirée',
+    home_feature3_title: 'Événements',
+    home_feature3_text: 'Anniversaires, repas d\'affaires, soirées en groupe',
+    home_cta_title: 'Prêt à vivre une expérience unique ?',
+    home_cta_text: 'Réservez votre table dès maintenant',
+
     footer_about: 'Restaurant & Bar en bord de mer à Fidjrossé, Cotonou. Cuisine africaine, pizzas, fruits de mer et cocktails dans un cadre chaleureux.',
     footer_links: 'Liens rapides',
     footer_hours: 'Horaires',
     footer_contact: 'Contact',
-    footer_copyright: '© {year} Face À La Mer. Réalisé par',
+    footer_copyright: '© {year} Face À La Mer. Réalisé par BOCOVO Mahougnon Abel',
 
     menu_title: 'Notre Carte',
     menu_subtitle: 'Découvrez notre sélection de plats préparés avec des produits frais',
@@ -34,6 +44,7 @@ const i18n = {
     menu_plats: 'Plats principaux',
     menu_specialites: 'Spécialités',
     menu_boissons: 'Boissons',
+    menu_all: 'Tous',
 
     galerie_title: 'Galerie',
     galerie_subtitle: 'Plongez dans l\'ambiance unique de Face À La Mer',
@@ -52,10 +63,14 @@ const i18n = {
     reservation_label_time: 'Heure',
     reservation_label_guests: 'Nombre de personnes',
     reservation_label_notes: 'Remarque (allergie, anniversaire...)',
+    reservation_label_service: 'Service',
+    reservation_service_lunch: 'Déjeuner',
+    reservation_service_dinner: 'Dîner',
     reservation_placeholder_name: 'Votre nom',
     reservation_placeholder_phone: 'Votre numéro',
     reservation_placeholder_notes: 'Ex. : Anniversaire, allergie...',
     reservation_submit: 'Confirmer la réservation',
+    reservation_sending: 'Envoi en cours...',
     reservation_confirm_title: 'Réservation envoyée !',
     reservation_confirm_text: 'Nous vous confirmons votre demande par email ou WhatsApp dans les plus brefs délais.',
     reservation_new: 'Nouvelle réservation',
@@ -105,11 +120,21 @@ const i18n = {
     hero_badge: 'Excellent — ★ 4.1/5 on 313+ reviews',
     hero_badge_fr: 'Excellent',
 
+    home_features_subtitle: 'A unique setting on Fidjrossé beach, where local cuisine meets international flavors.',
+    home_feature1_title: 'Varied cuisine',
+    home_feature1_text: 'African, pizzas, seafood, salads and grilled dishes',
+    home_feature2_title: 'Exceptional setting',
+    home_feature2_text: 'Seaside terrace, evening atmosphere',
+    home_feature3_title: 'Events',
+    home_feature3_text: 'Birthdays, business meals, group evenings',
+    home_cta_title: 'Ready for a unique experience?',
+    home_cta_text: 'Book your table now',
+
     footer_about: 'Seaside Restaurant & Bar in Fidjrossé, Cotonou. African cuisine, pizzas, seafood, and cocktails in a warm setting.',
     footer_links: 'Quick links',
     footer_hours: 'Opening hours',
     footer_contact: 'Contact',
-    footer_copyright: '© {year} Face À La Mer. Made by',
+    footer_copyright: '© {year} Face À La Mer. Made by BOCOVO Mahougnon Abel',
 
     menu_title: 'Our Menu',
     menu_subtitle: 'Discover our selection of dishes prepared with fresh ingredients',
@@ -117,6 +142,7 @@ const i18n = {
     menu_plats: 'Main Courses',
     menu_specialites: 'Specialties',
     menu_boissons: 'Drinks',
+    menu_all: 'All',
 
     galerie_title: 'Gallery',
     galerie_subtitle: 'Immerse yourself in the unique ambiance of Face À La Mer',
@@ -135,10 +161,14 @@ const i18n = {
     reservation_label_time: 'Time',
     reservation_label_guests: 'Number of guests',
     reservation_label_notes: 'Notes (allergy, birthday...)',
+    reservation_label_service: 'Service',
+    reservation_service_lunch: 'Lunch',
+    reservation_service_dinner: 'Dinner',
     reservation_placeholder_name: 'Your name',
     reservation_placeholder_phone: 'Your phone number',
     reservation_placeholder_notes: 'E.g.: Birthday, allergy...',
     reservation_submit: 'Confirm reservation',
+    reservation_sending: 'Sending...',
     reservation_confirm_title: 'Reservation sent!',
     reservation_confirm_text: 'We will confirm your request by email or WhatsApp as soon as possible.',
     reservation_new: 'New reservation',
@@ -183,13 +213,18 @@ function switchLang(lang) {
   document.documentElement.lang = lang === 'fr' ? 'fr' : 'en';
   document.querySelectorAll('[data-i18n]').forEach(el => {
     const key = el.dataset.i18n;
+    let params = { year: new Date().getFullYear() };
+    if (el.dataset.i18nParams) {
+      try { params = { ...params, ...JSON.parse(el.dataset.i18nParams) }; } catch (e) {}
+    }
+    const text = getText(key, params);
     if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA') {
       const attr = el.dataset.i18nAttr || 'placeholder';
-      el.setAttribute(attr, getText(key));
+      el.setAttribute(attr, text);
     } else if (el.dataset.i18nHtml) {
-      el.innerHTML = getText(key);
+      el.innerHTML = text;
     } else {
-      el.textContent = getText(key);
+      el.textContent = text;
     }
   });
   document.querySelectorAll('.lang-switch button').forEach(btn => {

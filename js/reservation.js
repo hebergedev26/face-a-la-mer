@@ -29,8 +29,9 @@ document.addEventListener('DOMContentLoaded', () => {
     e.preventDefault();
 
     const submitBtn = form.querySelector('.btn');
+    const originalText = submitBtn.textContent;
     submitBtn.disabled = true;
-    submitBtn.textContent = 'Envoi en cours...';
+    submitBtn.textContent = getText('reservation_sending');
 
     const data = {
       name: document.getElementById('name').value.trim(),
@@ -38,11 +39,11 @@ document.addEventListener('DOMContentLoaded', () => {
       date: document.getElementById('date').value,
       time: document.getElementById('time').value,
       guests: document.getElementById('guests').value,
-      notes: document.getElementById('notes').value.trim()
+      notes: document.getElementById('notes').value.trim(),
+      service: document.getElementById('service')?.value || 'lunch'
     };
 
     try {
-      // Send via FormSubmit (free, no backend needed)
       const response = await fetch(form.action, {
         method: 'POST',
         body: new FormData(form),
@@ -55,13 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
       } else {
         alert('Une erreur est survenue. Veuillez réessayer ou nous contacter par téléphone.');
       }
-    } catch {
-      // Fallback: show confirmation anyway (FormSubmit may redirect)
-      form.style.display = 'none';
-      confirmation.classList.add('show');
+    } catch (err) {
+      console.error('Erreur réservation:', err);
+      alert('Une erreur réseau est survenue. Vérifiez votre connexion puis réessayez, ou appelez-nous directement.');
     } finally {
       submitBtn.disabled = false;
-      submitBtn.textContent = getText('reservation_submit');
+      submitBtn.textContent = originalText;
     }
   });
 

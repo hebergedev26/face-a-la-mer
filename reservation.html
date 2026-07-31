@@ -22,7 +22,7 @@
   </script>
 
   <meta property="og:type" content="website">
-  <meta property="og:url" content="https://facealamerbenin.com/reservation.html">
+  <meta property="og:url" content="https://hebergedev26.github.io/face-a-la-mer/reservation.html/reservation.html">
   <meta property="og:title" content="Réservation — Face À La Mer">
   <meta property="og:description" content="Réservez votre table en ligne à Face À La Mer, Fidjrossé, Cotonou.">
   <meta property="og:image" content="https://images.unsplash.com/photo-1466978913421-dad2ebd01d17?w=1200&q=80">
@@ -75,7 +75,7 @@
           <p data-i18n="reservation_info_text">Un cadre unique au bord de mer, une cuisine variée et une équipe attentionnée. Réservez dès maintenant et vivez une expérience inoubliable à Fidjrossé.</p>
           <div class="info-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
-            <span>Route des Pêches, Fidjrossé, Cotonou</span>
+            <span data-i18n="contact_address">Route des Pêches, Fidjrossé, Cotonou</span>
           </div>
           <div class="info-item">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 16.92z"/></svg>
@@ -93,7 +93,8 @@
             <form id="reservationForm" action="https://formsubmit.co/abelmahougnonbocovo@gmail.com" method="POST">
               <input type="hidden" name="_subject" value="Nouvelle réservation - Face À La Mer">
               <input type="hidden" name="_template" value="table">
-              <input type="hidden" name="_captcha" value="false">
+              <input type="hidden" name="_captcha" value="true">
+              <input type="hidden" name="service" id="service" value="lunch">
               <input type="hidden" name="_next" id="formNext" value="">
 
               <div class="form-grid">
@@ -124,16 +125,16 @@
                   <input type="date" id="date" name="date" required>
                 </div>
                 <div class="form-group full">
-                  <label>Service</label>
+                  <label data-i18n="reservation_label_service">Service</label>
                   <div class="service-selector">
                     <div class="service-option active" data-service="lunch">
                       <div class="icon">☀️</div>
-                      <span class="label">Déjeuner</span>
+                      <span class="label" data-i18n="reservation_service_lunch">Déjeuner</span>
                       <span class="hours">11h – 14h</span>
                     </div>
                     <div class="service-option" data-service="dinner">
                       <div class="icon">🌙</div>
-                      <span class="label">Dîner</span>
+                      <span class="label" data-i18n="reservation_service_dinner">Dîner</span>
                       <span class="hours">18h – 22h</span>
                     </div>
                   </div>
@@ -204,7 +205,7 @@
         </div>
       </div>
       <div class="footer-bottom">
-        <p data-i18n="footer_copyright" data-i18n-html="true">© 2026 Face À La Mer. Réalisé par <a href="#">BOCOVO Mahougnon Abel</a></p>
+        <p data-i18n="footer_copyright" data-i18n-html="true" data-i18n-params="{&quot;year&quot;:&quot;2026&quot;}">© 2026 Face À La Mer. Réalisé par BOCOVO Mahougnon Abel</p>
       </div>
     </div>
   </footer>

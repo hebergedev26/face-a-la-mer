@@ -130,6 +130,7 @@ document.addEventListener('DOMContentLoaded', () => {
   // --- Service selector (lunch/dinner) ---
   const serviceOptions = document.querySelectorAll('.service-option');
   const timeSelect = document.getElementById('time');
+  const serviceInput = document.getElementById('service');
   if (serviceOptions.length && timeSelect) {
     const timeSlots = {
       lunch: ['11:00', '12:00', '13:00', '14:00'],
@@ -140,6 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
         serviceOptions.forEach(o => o.classList.remove('active'));
         opt.classList.add('active');
         const service = opt.dataset.service;
+        if (serviceInput) serviceInput.value = service;
         timeSelect.innerHTML = timeSlots[service].map(t =>
           `<option value="${t}">${t}</option>`
         ).join('');

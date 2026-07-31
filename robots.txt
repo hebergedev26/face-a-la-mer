@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 Disallow: /404.html
 
-Sitemap: https://facealamerbenin.com/sitemap.xml
+Sitemap: https://hebergedev26.github.io/face-a-la-mer/sitemap.xml

@@ -273,7 +273,7 @@
       const load = useCallback(async () => {
         try {
           const snap = await db.collection('menu').orderBy('id').get();
-          setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+          setItems(snap.docs.map(d => ({ docId: d.id, ...d.data() })));
         } catch (e) { addToast('Erreur chargement menu: ' + e.message, 'error'); }
         finally { setLoading(false); }
       }, []);
@@ -282,12 +282,12 @@
 
       const save = async (data) => {
         try {
-          if (data.id) {
-            await db.collection('menu').doc(data.id).update(data);
+          const { docId, ...clean } = data;
+          if (docId) {
+            await db.collection('menu').doc(docId).update(clean);
             addToast('Plat modifié ✓');
           } else {
-            const count = items.length;
-            await db.collection('menu').add({ ...data, id: Date.now() });
+            await db.collection('menu').add({ ...clean, id: Date.now() });
             addToast('Plat ajouté ✓');
           }
           setModal(null);
@@ -322,21 +322,21 @@
                 if (!filtered.length) return null;
                 return React.createElement('div', { key, style: { marginBottom: '16px' } },
                   React.createElement('div', { className: 'category-label' }, label),
-                  filtered.map(item => React.createElement('div', { key: item.id, className: 'item-row' },
+                  filtered.map(item => React.createElement('div', { key: item.docId, className: 'item-row' },
                     React.createElement('div', { className: 'info' },
                       React.createElement('strong', null, item.name),
                       React.createElement('span', null, `${item.price} — ${item.description}`)
                     ),
                     React.createElement('div', { className: 'actions' },
                       React.createElement('button', { className: 'btn btn-sm btn-primary', onClick: () => setModal(item) }, 'Modifier'),
-                      React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(item.id) }, 'Suppr.')
+                      React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(item.docId) }, 'Suppr.')
                     )
                   ))
                 );
               })
         ),
         modal && React.createElement(ItemModal, {
-          title: `${modal.id ? 'Modifier' : 'Ajouter'} un plat`,
+          title: `${modal.docId ? 'Modifier' : 'Ajouter'} un plat`,
           fields: [
             { key: 'name', label: 'Nom du plat', full: true, placeholder: 'Ex : Poulet Braisé', required: true },
             { key: 'category', label: 'Catégorie', type: 'select', options: CATEGORIES, value: modal.category || 'entrees' },
@@ -359,7 +359,7 @@
       const load = useCallback(async () => {
         try {
           const snap = await db.collection('reviews').orderBy('id').get();
-          setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+          setItems(snap.docs.map(d => ({ docId: d.id, ...d.data() })));
         } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
         finally { setLoading(false); }
       }, []);
@@ -368,11 +368,12 @@
 
       const save = async (data) => {
         try {
-          if (data.id) {
-            await db.collection('reviews').doc(data.id).update(data);
+          const { docId, ...clean } = data;
+          if (docId) {
+            await db.collection('reviews').doc(docId).update(clean);
             addToast('Avis modifié ✓');
           } else {
-            await db.collection('reviews').add({ ...data, id: Date.now() });
+            await db.collection('reviews').add({ ...clean, id: Date.now() });
             addToast('Avis ajouté ✓');
           }
           setModal(null);
@@ -400,19 +401,19 @@
           ),
           items.length === 0
             ? React.createElement('div', { className: 'empty-state' }, 'Aucun avis pour l\'instant')
-            : items.map(r => React.createElement('div', { key: r.id, className: 'item-row' },
+            : items.map(r => React.createElement('div', { key: r.docId, className: 'item-row' },
                 React.createElement('div', { className: 'info' },
                   React.createElement('strong', null, r.author),
                   React.createElement('span', null, `${'★'.repeat(r.stars)}${'☆'.repeat(5 - r.stars)} — ${r.text.substring(0, 80)}${r.text.length > 80 ? '...' : ''}`)
                 ),
                 React.createElement('div', { className: 'actions' },
                   React.createElement('button', { className: 'btn btn-sm btn-primary', onClick: () => setModal(r) }, 'Modifier'),
-                  React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(r.id) }, 'Suppr.')
+                  React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(r.docId) }, 'Suppr.')
                 )
               ))
         ),
         modal && React.createElement(ItemModal, {
-          title: `${modal.id ? 'Modifier' : 'Ajouter'} un avis`,
+          title: `${modal.docId ? 'Modifier' : 'Ajouter'} un avis`,
           fields: [
             { key: 'author', label: 'Auteur', placeholder: 'Ex : Marie K.', required: true },
             { key: 'stars', label: 'Note', type: 'select', options: { 5: '★★★★★', 4: '★★★★☆', 3: '★★★☆☆', 2: '★★☆☆☆', 1: '★☆☆☆☆' }, value: modal.stars || 5 },
@@ -434,7 +435,7 @@
       const load = useCallback(async () => {
         try {
           const snap = await db.collection('gallery').orderBy('id').get();
-          setItems(snap.docs.map(d => ({ id: d.id, ...d.data() })));
+          setItems(snap.docs.map(d => ({ docId: d.id, ...d.data() })));
         } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
         finally { setLoading(false); }
       }, []);
@@ -443,9 +444,10 @@
 
       const save = async (data) => {
         try {
-          const finalData = { ...data, thumb: data.thumb || data.src };
-          if (data.id) {
-            await db.collection('gallery').doc(data.id).update(finalData);
+          const { docId, ...clean } = data;
+          const finalData = { ...clean, thumb: clean.thumb || clean.src };
+          if (docId) {
+            await db.collection('gallery').doc(docId).update(finalData);
             addToast('Photo modifiée ✓');
           } else {
             await db.collection('gallery').add({ ...finalData, id: Date.now() });
@@ -476,19 +478,19 @@
           ),
           items.length === 0
             ? React.createElement('div', { className: 'empty-state' }, 'Aucune photo pour l\'instant')
-            : items.map(g => React.createElement('div', { key: g.id, className: 'item-row' },
+            : items.map(g => React.createElement('div', { key: g.docId, className: 'item-row' },
                 React.createElement('div', { className: 'info' },
                   React.createElement('strong', null, g.label),
                   React.createElement('span', null, g.alt)
                 ),
                 React.createElement('div', { className: 'actions' },
                   React.createElement('button', { className: 'btn btn-sm btn-primary', onClick: () => setModal(g) }, 'Modifier'),
-                  React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(g.id) }, 'Suppr.')
+                  React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(g.docId) }, 'Suppr.')
                 )
               ))
         ),
         modal && React.createElement(ItemModal, {
-          title: `${modal.id ? 'Modifier' : 'Ajouter'} une photo`,
+          title: `${modal.docId ? 'Modifier' : 'Ajouter'} une photo`,
           fields: [
             { key: 'label', label: 'Titre', placeholder: 'Ex : Nos Plats', required: true },
             { key: 'alt', label: 'Texte alternatif', placeholder: 'Description de l\'image', required: true },

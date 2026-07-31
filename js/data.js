@@ -84,7 +84,14 @@ async function loadReviews() {
   const ratingEl = document.querySelector('.big-rating');
   if (ratingEl) {
     const s = await getSettings();
-    if (s) ratingEl.textContent = s.rating.toString().replace('.', ',');
+    if (s) {
+      ratingEl.textContent = s.rating.toString().replace('.', ',');
+      const countEl = document.querySelector('.review-count');
+      if (countEl && s.reviewCount) {
+        countEl.dataset.i18nParams = JSON.stringify({ count: s.reviewCount });
+        if (typeof switchLang === 'function') switchLang(currentLang);
+      }
+    }
   }
   container.innerHTML = data.map((r, i) => `
     <div class="review-card fade-in">
