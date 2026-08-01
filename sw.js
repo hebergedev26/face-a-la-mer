@@ -1,4 +1,4 @@
-const CACHE = 'face-a-la-mer-v1';
+const CACHE = 'face-a-la-mer-v2';
 const SHELL = [
   './',
   'index.html',
