@@ -1025,6 +1025,12 @@ ul { list-style: none; }
   transition: var(--transition);
 }
 .btn-add-cart:hover { background: var(--navy); color: var(--white); }
+
+/* ===== MENU PDF ACTIONS ===== */
+.menu-actions { display: flex; gap: 12px; justify-content: center; margin: 24px 0 8px; flex-wrap: wrap; }
+.menu-actions .btn svg { width: 18px; height: 18px; }
+.btn-whatsapp { background: #25d366; color: var(--white); }
+.btn-whatsapp:hover { background: #1ebe5b; }
 .checkout-overlay {
   position: fixed;
   inset: 0;

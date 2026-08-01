@@ -45,6 +45,8 @@ const i18n = {
     menu_specialites: 'Spécialités',
     menu_boissons: 'Boissons',
     menu_all: 'Tous',
+    menu_pdf: 'Télécharger la carte (PDF)',
+    menu_pdf_share: 'Partager sur WhatsApp',
 
     cart_add: 'Ajouter au panier',
     cart_title: 'Votre panier',
@@ -162,6 +164,8 @@ const i18n = {
     menu_specialites: 'Specialties',
     menu_boissons: 'Drinks',
     menu_all: 'All',
+    menu_pdf: 'Download menu (PDF)',
+    menu_pdf_share: 'Share on WhatsApp',
 
     cart_add: 'Add to cart',
     cart_title: 'Your cart',
