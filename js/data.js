@@ -32,6 +32,15 @@ async function fetchJSON(url) {
   }
 }
 
+function esc(s) {
+  return String(s).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+}
+
+function parsePrice(price) {
+  const m = String(price || '').match(/\d[\d\s]*/);
+  return m ? parseInt(m[0].replace(/\s/g, ''), 10) : 0;
+}
+
 let settingsCache = null;
 
 async function getSettings() {
@@ -59,16 +68,21 @@ async function loadMenu() {
     if (!container) return;
     const items = data.filter(i => i.category === id);
     if (items.length) {
-      container.innerHTML = items.map(item => `
+      window.MENU_ITEMS = window.MENU_ITEMS || [];
+      container.innerHTML = items.map(item => {
+        const priceNumber = item.priceNumber || parsePrice(item.price);
+        window.MENU_ITEMS.push({ name: item.name, price: item.price, priceNumber });
+        return `
         <div class="menu-item">
           <div class="menu-item-img" style="background: #e8d5b8;"></div>
           <div class="menu-item-info">
             <h3>${item.name}</h3>
             <div class="price">${item.price}</div>
             <p>${item.description}</p>
+            <button type="button" class="btn-add-cart" data-name="${esc(item.name)}" data-price="${esc(item.price)}" data-pricenum="${priceNumber}">${getText('cart_add')}</button>
           </div>
-        </div>
-      `).join('');
+        </div>`;
+      }).join('');
     }
   });
 }

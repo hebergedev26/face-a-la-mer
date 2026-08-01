@@ -226,6 +226,7 @@
         { id: 'reviews', label: '⭐ Avis' },
         { id: 'gallery', label: '📷 Galerie' },
         { id: 'reservations', label: '📅 Réservations' },
+        { id: 'commandes', label: '🛒 Commandes' },
         { id: 'settings', label: '⚙️ Paramètres' },
       ];
 
@@ -255,6 +256,9 @@
         ),
         React.createElement('div', { className: `tab-content ${tab === 'reservations' ? 'active' : ''}` },
           tab === 'reservations' && React.createElement(ReservationsManager, null)
+        ),
+        React.createElement('div', { className: `tab-content ${tab === 'commandes' ? 'active' : ''}` },
+          tab === 'commandes' && React.createElement(OrdersManager, null)
         ),
         React.createElement('div', { className: `tab-content ${tab === 'settings' ? 'active' : ''}` },
           tab === 'settings' && React.createElement(SettingsManager, null)
@@ -349,7 +353,8 @@
           fields: [
             { key: 'name', label: 'Nom du plat', full: true, placeholder: 'Ex : Poulet Braisé', required: true },
             { key: 'category', label: 'Catégorie', type: 'select', options: CATEGORIES, value: modal.category || 'entrees' },
-            { key: 'price', label: 'Prix', placeholder: 'Ex : 6 000 FCFA', required: true },
+            { key: 'price', label: 'Prix (affichage)', placeholder: 'Ex : 6 000 FCFA', required: true },
+            { key: 'priceNumber', label: 'Prix (nombre en FCFA)', type: 'number', placeholder: 'Ex : 6000', hint: 'Optionnel — utilisé pour le panier et les commandes en ligne' },
             { key: 'description', label: 'Description', type: 'textarea', full: true, placeholder: 'Décrivez le plat et ses ingrédients...' },
           ],
           onSave: (data) => save({ ...modal, ...data }),
@@ -582,6 +587,90 @@
                     Object.entries(STATUS_LABELS).map(([k, v]) => React.createElement('option', { key: k, value: k }, v))
                   ),
                   React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(r.docId) }, 'Suppr.')
+                )
+              ))
+        )
+      );
+    }
+
+    // ====== Orders Manager (commandes en ligne) ======
+    function OrdersManager() {
+      const [items, setItems] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [filter, setFilter] = useState('toutes');
+      const addToast = React.useContext(ToastContext);
+
+      const STATUS_LABELS = { nouvelle: 'Nouvelle', confirmee: 'Confirmée', annulee: 'Annulée' };
+      const fmt = n => (Number(n) || 0).toLocaleString('fr-FR') + ' FCFA';
+      const fmtDate = ts => {
+        if (!ts) return '';
+        const d = ts.toDate ? ts.toDate() : new Date(ts);
+        return d.toLocaleDateString('fr-FR') + ' ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+      };
+
+      const load = useCallback(async () => {
+        try {
+          const snap = await db.collection('commandes').orderBy('createdAt', 'desc').get();
+          setItems(snap.docs.map(d => ({ docId: d.id, ...d.data() })));
+        } catch (e) { addToast('Erreur chargement commandes: ' + e.message, 'error'); }
+        finally { setLoading(false); }
+      }, []);
+
+      useEffect(() => { load(); }, []);
+
+      const setStatus = async (docId, status) => {
+        try {
+          await db.collection('commandes').doc(docId).update({ status });
+          addToast('Statut mis à jour ✓');
+          load();
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+      };
+
+      const remove = async (docId) => {
+        if (!confirm('Supprimer cette commande ?')) return;
+        try {
+          await db.collection('commandes').doc(docId).delete();
+          addToast('Commande supprimée ✓');
+          load();
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+      };
+
+      if (loading) return React.createElement('div', { className: 'card' }, React.createElement('div', { className: 'empty-state' }, 'Chargement...'));
+
+      const counts = items.reduce((acc, r) => { acc[r.status] = (acc[r.status] || 0) + 1; return acc; }, {});
+      const shown = filter === 'toutes' ? items : items.filter(r => r.status === filter);
+
+      return React.createElement(React.Fragment, null,
+        React.createElement('div', { className: 'card' },
+          React.createElement('div', { className: 'card-header' },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } },
+              React.createElement('h3', null, '🛒 Commandes en ligne'),
+              React.createElement('span', { className: 'item-count' }, items.length + ' commandes')
+            ),
+            React.createElement('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } },
+              ['toutes', 'nouvelle', 'confirmee', 'annulee'].map(s =>
+                React.createElement('button', { key: s, className: `btn btn-sm ${filter === s ? 'btn-primary' : 'btn-outline'}`, onClick: () => setFilter(s) }, `${s === 'toutes' ? 'Toutes' : STATUS_LABELS[s]} (${s === 'toutes' ? items.length : (counts[s] || 0)})`)
+              )
+            )
+          ),
+          shown.length === 0
+            ? React.createElement('div', { className: 'empty-state' }, 'Aucune commande pour l\'instant')
+            : shown.map(o => React.createElement('div', { key: o.docId, className: 'item-row' },
+                React.createElement('div', { className: 'info' },
+                  React.createElement('strong', null, `${o.name} — ${fmt(o.total)}`),
+                  React.createElement('span', null,
+                    `${fmtDate(o.createdAt)} · ${o.mode === 'livraison' ? 'Livraison' : 'À emporter'}${o.address ? ' · ' + o.address : ''}` +
+                    (o.items && o.items.length ? ' · ' + o.items.map(it => `${it.qty}×${it.name}`).join(', ') : '') +
+                    (o.note ? ' · ' + o.note : '')
+                  )
+                ),
+                React.createElement('span', { className: `status-badge status-${o.status}` }, STATUS_LABELS[o.status] || o.status),
+                React.createElement('div', { className: 'actions' },
+                  React.createElement('a', { className: 'btn btn-sm btn-outline', href: `tel:${o.phone}` }, '📞 ' + o.phone),
+                  React.createElement('select', { className: 'status-select', value: o.status, onChange: e => setStatus(o.docId, e.target.value) },
+                    Object.entries(STATUS_LABELS).map(([k, v]) => React.createElement('option', { key: k, value: k }, v))
+                  ),
+                  React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(o.docId) }, 'Suppr.')
                 )
               ))
         )
