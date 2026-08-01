@@ -1,0 +1,24 @@
+{
+  "name": "Face À La Mer — Restaurant & Bar",
+  "short_name": "Face à la Mer",
+  "description": "Restaurant & Bar à Fidjrossé, Cotonou. Cuisine africaine, pizzas, fruits de mer. Réservez votre table en ligne.",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1a3a5c",
+  "theme_color": "#1a3a5c",
+  "lang": "fr",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
