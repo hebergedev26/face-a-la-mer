@@ -79,6 +79,11 @@
     .badge-plats { background: #e3f2fd; color: #1565c0; }
     .badge-specialites { background: #fff3e0; color: #e65100; }
     .badge-boissons { background: #f3e5f5; color: #7b1fa2; }
+    .status-badge { padding: 3px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; white-space: nowrap; }
+    .status-nouvelle { background: #fff3e0; color: #e65100; }
+    .status-confirmee { background: #e8f5e9; color: #2e7d32; }
+    .status-annulee { background: #fdecea; color: #b02a37; }
+    .status-select { padding: 8px 10px; border: 2px solid #e5e0da; border-radius: 8px; font-size: 0.8rem; background: #faf8f5; cursor: pointer; }
     .category-label { font-size: 0.9rem; font-weight: 600; color: #1a3a5c; padding-bottom: 6px; border-bottom: 2px solid #d4a853; display: inline-block; margin-bottom: 8px; }
     .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .settings-grid .form-group { margin-bottom: 0; }
@@ -220,6 +225,7 @@
         { id: 'menu', label: '🍽️ Menu' },
         { id: 'reviews', label: '⭐ Avis' },
         { id: 'gallery', label: '📷 Galerie' },
+        { id: 'reservations', label: '📅 Réservations' },
         { id: 'settings', label: '⚙️ Paramètres' },
       ];
 
@@ -246,6 +252,9 @@
         ),
         React.createElement('div', { className: `tab-content ${tab === 'gallery' ? 'active' : ''}` },
           tab === 'gallery' && React.createElement(GalleryManager, null)
+        ),
+        React.createElement('div', { className: `tab-content ${tab === 'reservations' ? 'active' : ''}` },
+          tab === 'reservations' && React.createElement(ReservationsManager, null)
         ),
         React.createElement('div', { className: `tab-content ${tab === 'settings' ? 'active' : ''}` },
           tab === 'settings' && React.createElement(SettingsManager, null)
@@ -502,6 +511,80 @@
           onSave: (data) => save({ ...modal, ...data }),
           onClose: () => setModal(null)
         })
+      );
+    }
+
+    // ====== Reservations Manager ======
+    function ReservationsManager() {
+      const [items, setItems] = useState([]);
+      const [loading, setLoading] = useState(true);
+      const [filter, setFilter] = useState('toutes');
+      const addToast = React.useContext(ToastContext);
+
+      const STATUS_LABELS = { nouvelle: 'Nouvelle', confirmee: 'Confirmée', annulee: 'Annulée' };
+
+      const load = useCallback(async () => {
+        try {
+          const snap = await db.collection('reservations').orderBy('date', 'desc').get();
+          setItems(snap.docs.map(d => ({ docId: d.id, ...d.data() })));
+        } catch (e) { addToast('Erreur chargement réservations: ' + e.message, 'error'); }
+        finally { setLoading(false); }
+      }, []);
+
+      useEffect(() => { load(); }, []);
+
+      const setStatus = async (docId, status) => {
+        try {
+          await db.collection('reservations').doc(docId).update({ status });
+          addToast('Statut mis à jour ✓');
+          load();
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+      };
+
+      const remove = async (docId) => {
+        if (!confirm('Supprimer cette réservation ?')) return;
+        try {
+          await db.collection('reservations').doc(docId).delete();
+          addToast('Réservation supprimée ✓');
+          load();
+        } catch (e) { addToast('Erreur: ' + e.message, 'error'); }
+      };
+
+      if (loading) return React.createElement('div', { className: 'card' }, React.createElement('div', { className: 'empty-state' }, 'Chargement...'));
+
+      const counts = items.reduce((acc, r) => { acc[r.status] = (acc[r.status] || 0) + 1; return acc; }, {});
+      const shown = filter === 'toutes' ? items : items.filter(r => r.status === filter);
+
+      return React.createElement(React.Fragment, null,
+        React.createElement('div', { className: 'card' },
+          React.createElement('div', { className: 'card-header' },
+            React.createElement('div', { style: { display: 'flex', alignItems: 'baseline', gap: '10px' } },
+              React.createElement('h3', null, '📅 Réservations'),
+              React.createElement('span', { className: 'item-count' }, items.length + ' réservations')
+            ),
+            React.createElement('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } },
+              ['toutes', 'nouvelle', 'confirmee', 'annulee'].map(s =>
+                React.createElement('button', { key: s, className: `btn btn-sm ${filter === s ? 'btn-primary' : 'btn-outline'}`, onClick: () => setFilter(s) }, `${s === 'toutes' ? 'Toutes' : STATUS_LABELS[s]} (${s === 'toutes' ? items.length : (counts[s] || 0)})`)
+              )
+            )
+          ),
+          shown.length === 0
+            ? React.createElement('div', { className: 'empty-state' }, 'Aucune réservation pour l\'instant')
+            : shown.map(r => React.createElement('div', { key: r.docId, className: 'item-row' },
+                React.createElement('div', { className: 'info' },
+                  React.createElement('strong', null, `${r.name} — ${r.guests} pers.`),
+                  React.createElement('span', null, `${r.date} à ${r.time} · ${r.service === 'dinner' ? 'Dîner' : 'Déjeuner'}${r.notes ? ' · ' + r.notes : ''}`)
+                ),
+                React.createElement('span', { className: `status-badge status-${r.status}` }, STATUS_LABELS[r.status] || r.status),
+                React.createElement('div', { className: 'actions' },
+                  React.createElement('a', { className: 'btn btn-sm btn-outline', href: `tel:${r.phone}` }, '📞 ' + r.phone),
+                  React.createElement('select', { className: 'status-select', value: r.status, onChange: e => setStatus(r.docId, e.target.value) },
+                    Object.entries(STATUS_LABELS).map(([k, v]) => React.createElement('option', { key: k, value: k }, v))
+                  ),
+                  React.createElement('button', { className: 'btn btn-sm btn-danger', onClick: () => remove(r.docId) }, 'Suppr.')
+                )
+              ))
+        )
       );
     }
 

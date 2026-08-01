@@ -23,5 +23,17 @@ service cloud.firestore {
       allow read: if true;
       allow write: if request.auth != null;
     }
+
+    // Les réservations et commandes peuvent être créées par tout visiteur,
+    // mais seuls les utilisateurs connectés (admin) peuvent les lire, modifier ou supprimer
+    match /reservations/{id} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
+
+    match /commandes/{id} {
+      allow create: if true;
+      allow read, update, delete: if request.auth != null;
+    }
   }
 }

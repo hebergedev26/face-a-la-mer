@@ -43,26 +43,38 @@ document.addEventListener('DOMContentLoaded', () => {
       service: document.getElementById('service')?.value || 'lunch'
     };
 
+    let fsOk = false;
+    let mailOk = false;
+
+    try {
+      if (fbDb) {
+        await fbDb.collection('reservations').add({
+          ...data,
+          status: 'nouvelle',
+          createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        fsOk = true;
+      }
+    } catch (err) { console.error('Erreur enregistrement réservation:', err); }
+
     try {
       const response = await fetch(form.action, {
         method: 'POST',
         body: new FormData(form),
         headers: { 'Accept': 'application/json' }
       });
+      if (response.ok) mailOk = true;
+    } catch (err) { console.error('Erreur envoi email:', err); }
 
-      if (response.ok) {
-        form.style.display = 'none';
-        confirmation.classList.add('show');
-      } else {
-        alert('Une erreur est survenue. Veuillez réessayer ou nous contacter par téléphone.');
-      }
-    } catch (err) {
-      console.error('Erreur réservation:', err);
-      alert('Une erreur réseau est survenue. Vérifiez votre connexion puis réessayez, ou appelez-nous directement.');
-    } finally {
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalText;
+    if (fsOk || mailOk) {
+      form.style.display = 'none';
+      confirmation.classList.add('show');
+    } else {
+      alert('Une erreur est survenue. Veuillez réessayer ou nous contacter par téléphone.');
     }
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = originalText;
   });
 
   if (newBtn) {
